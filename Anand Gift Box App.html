@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BoxCraft Studio - Hamper Builder & Billing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printable-bill, #printable-bill * { visibility: visible; }
+      #printable-bill { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 pb-36 font-sans antialiased">
+
+  <header class="bg-white border-b sticky top-0 z-30 px-6 py-3 flex justify-between items-center shadow-xs">
+    <div>
+      <h1 class="text-xl font-black text-gray-900 tracking-tight">BoxCraft Studio</h1>
+      <div class="flex items-center gap-2 mt-0.5">
+        <span id="sync-status" class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+        <p id="sync-text" class="text-xs text-gray-500 font-medium">Connecting to Google Sheet...</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="syncGoogleSheetLive()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-2 rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-xs">
+        <span>🔄</span> Sync Live Sheet
+      </button>
+      <button onclick="toggleUploadModal()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-3 py-2 rounded-lg border transition">
+        📁 Offline File
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+    <section class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs">
+      <div class="flex items-center justify-between mb-3 border-b pb-2">
+        <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+          <span class="w-2 h-2 bg-indigo-600 rounded-full"></span> Customer & Order Details
+        </h2>
+        <span class="text-[11px] text-gray-400">Required before bill generation</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Customer Name <span class="text-red-500">*</span></label>
+          <input type="text" id="cust-name" placeholder="e.g. Ramesh Kumar" class="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-indigo-600">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Contact / Mobile <span class="text-red-500">*</span></label>
+          <input type="tel" id="cust-phone" placeholder="e.g. +91 98765 43210" class="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-indigo-600">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Order Ref / Notes</label>
+          <input type="text" id="cust-note" placeholder="e.g. Diwali Hamper Order" class="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-indigo-600">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-base font-bold text-gray-900">1. Select a Gift Box</h2>
+          <p class="text-xs text-gray-500">Pick a box to set maximum capacity</p>
+        </div>
+        <span id="selected-box-tag" class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full hidden">
+          Box Selected
+        </span>
+      </div>
+      <div id="boxes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div class="col-span-full py-8 text-center text-xs text-gray-400">Loading gift boxes...</div>
+      </div>
+    </section>
+
+    <section id="catalog-section" class="opacity-40 pointer-events-none transition-opacity duration-300">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-base font-bold text-gray-900">2. Select Products</h2>
+          <p class="text-xs text-gray-500">Add products up to your box capacity limit</p>
+        </div>
+        <div class="bg-white border px-4 py-2 rounded-xl shadow-xs text-right">
+          <span class="text-xs text-gray-500">Box Capacity: </span>
+          <span id="capacity-indicator" class="text-sm font-bold text-indigo-600">0 / 0 Items</span>
+        </div>
+      </div>
+
+      <div class="space-y-3 mb-4">
+        <input type="text" id="search-input" oninput="filterProducts()" placeholder="🔍 Search by product name or item code..." class="w-full text-xs px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-indigo-600 bg-white shadow-xs">
+        <div id="category-pills" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto py-1">
+          </div>
+      </div>
+
+      <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        </div>
+    </section>
+
+  </main>
+
+  <aside class="fixed bottom-0 left-0 right-0 bg-white border-t px-6 py-4 shadow-2xl z-20">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Estimated Total (Incl. GST)</span>
+        <span id="cart-total" class="text-2xl font-black text-gray-900">₹0.00</span>
+        <span id="box-summary" class="text-xs text-gray-500 block">No box chosen</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-excel" onclick="downloadManualBillExcel()" disabled class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-xs">
+          <span>📊</span> Export Excel Bill
+        </button>
+        <button id="btn-pdf" onclick="openPrintBill()" disabled class="px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-xs">
+          <span>🧾</span> Print / PDF Bill
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="printable-bill" class="hidden p-8 bg-white text-gray-900 max-w-2xl mx-auto">
+    <div class="border-b pb-3 mb-4 flex justify-between items-start">
+      <div>
+        <h2 class="text-xl font-bold uppercase tracking-tight">Manual Estimation / Bill Slip</h2>
+        <p class="text-xs text-gray-500">BoxCraft Studio Custom Hamper</p>
+      </div>
+      <div class="text-right text-xs">
+        <p><strong>Date:</strong> <span id="bill-date"></span></p>
+        <p><strong>Estimate #:</strong> <span id="bill-ref"></span></p>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 p-3 rounded border text-xs mb-4 grid grid-cols-2 gap-2">
+      <div><strong>Customer:</strong> <span id="bill-cust-name"></span></div>
+      <div><strong>Mobile:</strong> <span id="bill-cust-phone"></span></div>
+      <div class="col-span-2"><strong>Notes / Ref:</strong> <span id="bill-cust-note"></span></div>
+    </div>
+
+    <table class="w-full text-xs text-left border-collapse mb-4">
+      <thead>
+        <tr class="border-b-2 border-gray-800">
+          <th class="py-2">Item Code</th>
+          <th class="py-2">Item Description</th>
+          <th class="py-2 text-center">Qty</th>
+          <th class="py-2 text-right">Price</th>
+          <th class="py-2 text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody id="bill-items-body"></tbody>
+      <tfoot>
+        <tr class="border-t-2 border-gray-800 font-bold">
+          <td colspan="4" class="py-2 text-right">Grand Total:</td>
+          <td id="bill-grand-total" class="py-2 text-right font-black"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div id="upload-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-gray-900 text-sm">Offline Excel File Upload</h3>
+        <button onclick="toggleUploadModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold">&times;</button>
+      </div>
+      <p class="text-xs text-gray-600">
+        Upload your downloaded <strong>Combo Boxes.xlsx</strong> directly if working completely offline.
+      </p>
+      <input type="file" id="offline-file-input" accept=".xlsx, .xls" class="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 w-full" />
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="toggleUploadModal()" class="px-3 py-1.5 rounded-lg border text-xs font-semibold text-gray-600">Cancel</button>
+        <button onclick="processOfflineExcel()" class="px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700">Load File</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID = "1bF8oS9fQLE8UpuMEYqmID0ITyhvppZsHOv0_7qP8vms";
+
+    let boxes = [];
+    let products = [];
+    let selectedBox = null;
+    let boxCart = {};
+    let activeCategory = "All";
+    let searchQuery = "";
+
+    // --- JSONP Google Sheets Integration (No CORS Restrictions) ---
+    function syncGoogleSheetLive() {
+      const syncStatus = document.getElementById('sync-status');
+      const syncText = document.getElementById('sync-text');
+      syncStatus.className = "inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+      syncText.innerText = "Syncing from Google Sheet...";
+
+      loadSheetJSONP("Boxes", "onBoxesLoaded");
+    }
+
+    function loadSheetJSONP(sheetName, callbackName) {
+      const oldScript = document.getElementById(`jsonp-${sheetName}`);
+      if (oldScript) oldScript.remove();
+
+      const script = document.createElement('script');
+      script.id = `jsonp-${sheetName}`;
+      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${sheetName}&tqx=responseHandler:${callbackName}&t=${Date.now()}`;
+      script.onerror = () => {
+        const syncStatus = document.getElementById('sync-status');
+        const syncText = document.getElementById('sync-text');
+        syncStatus.className = "inline-block w-2 h-2 rounded-full bg-red-500";
+        syncText.innerText = "Connection failed. Please check internet connection.";
+      };
+      document.body.appendChild(script);
+    }
+
+    // Callbacks invoked by Google Sheets
+    window.onBoxesLoaded = function(json) {
+      try {
+        const cols = json.table.cols.map(c => (c ? c.label.trim() : ''));
+        boxes = json.table.rows.map((r, idx) => {
+          const rowData = {};
+          r.c.forEach((cell, i) => {
+            rowData[cols[i]] = cell ? cell.v : '';
+          });
+
+          return {
+            code: rowData["Code"] || rowData["Gift Box Code"] || rowData["Box Code"] || `BOX-${idx+1}`,
+            name: rowData["Gift Box Name"] || rowData["Box Name"] || `Gift Box ${idx+1}`,
+            price: parseFloat(rowData["Base price"] || rowData["Base Price"] || 0),
+            max: parseInt(rowData["Max Item"] || rowData["Max Items"] || 5, 10)
+          };
+        });
+
+        // Next load Products
+        loadSheetJSONP("Products", "onProductsLoaded");
+      } catch (e) {
+        console.error("Error parsing boxes:", e);
+      }
+    };
+
+    window.onProductsLoaded = function(json) {
+      try {
+        const cols = json.table.cols.map(c => (c ? c.label.trim() : ''));
+        products = json.table.rows.map(r => {
+          const rowData = {};
+          r.c.forEach((cell, i) => {
+            rowData[cols[i]] = cell ? cell.v : '';
+          });
+
+          return {
+            category: rowData["Category"] || "General",
+            code: String(rowData["Code"] || rowData["Item Code"] || "N/A"),
+            name: rowData["Product Name"] || "Unnamed Item",
+            price: parseFloat(rowData["Total Price"] || rowData["Price"] || 0)
+          };
+        }).filter(p => p.name !== "Unnamed Item");
+
+        const syncStatus = document.getElementById('sync-status');
+        const syncText = document.getElementById('sync-text');
+        syncStatus.className = "inline-block w-2 h-2 rounded-full bg-emerald-500";
+        syncText.innerText = `Live Connected (${products.length} Products, ${boxes.length} Boxes)`;
+
+        renderBoxes();
+        renderCategories();
+        updateUI();
+      } catch (e) {
+        console.error("Error parsing products:", e);
+      }
+    };
+
+    // --- Offline File Support ---
+    function toggleUploadModal() {
+      document.getElementById('upload-modal').classList.toggle('hidden');
+    }
+
+    function processOfflineExcel() {
+      const fileInput = document.getElementById('offline-file-input');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          const boxSheet = workbook.Sheets["Boxes"] || workbook.Sheets[workbook.SheetNames[0]];
+          const prodSheet = workbook.Sheets["Products"] || workbook.Sheets[workbook.SheetNames[1]];
+
+          const rawBoxes = XLSX.utils.sheet_to_json(boxSheet);
+          boxes = rawBoxes.map((b, idx) => ({
+            code: b["Code"] || b["Gift Box Code"] || `BOX-${idx+1}`,
+            name: b["Gift Box Name"] || b["Box Name"] || "Gift Box",
+            price: parseFloat(b["Base price"] || b["Base Price"] || 0),
+            max: parseInt(b["Max Item"] || b["Max Items"] || 5, 10)
+          }));
+
+          const rawProducts = XLSX.utils.sheet_to_json(prodSheet);
+          products = rawProducts.map(p => ({
+            category: p["Category"] || "General",
+            code: String(p["Code"] || p["Item Code"] || "N/A"),
+            name: p["Product Name"] || "Unnamed Item",
+            price: parseFloat(p["Total Price"] || p["Price"] || 0)
+          }));
+
+          document.getElementById('sync-status').className = "inline-block w-2 h-2 rounded-full bg-blue-500";
+          document.getElementById('sync-text').innerText = `Loaded from Local File (${products.length} Products)`;
+
+          toggleUploadModal();
+          renderBoxes();
+          renderCategories();
+          updateUI();
+        } catch (err) {
+          alert("Error parsing offline file.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- Render Functions ---
+    function renderBoxes() {
+      const container = document.getElementById('boxes-container');
+      container.innerHTML = boxes.map((box, idx) => {
+        const isSelected = selectedBox && selectedBox.name === box.name;
+        return `
+          <div onclick="selectBox(${idx})" class="p-3 border-2 rounded-xl cursor-pointer transition text-center ${
+            isSelected ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-1 ring-indigo-500' : 'border-gray-200 bg-white hover:border-gray-300'
+          }">
+            <span class="text-[9px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase">#${box.code}</span>
+            <h3 class="font-bold text-xs text-gray-900 mt-1 truncate">${box.name}</h3>
+            <span class="inline-block mt-1 text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">Max ${box.max} Items</span>
+            <p class="text-xs text-gray-700 font-black mt-1">₹${box.price.toFixed(2)}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCategories() {
+      const categories = ["All", ...new Set(products.map(p => p.category))];
+      const container = document.getElementById('category-pills');
+      container.innerHTML = categories.map(cat => `
+        <button onclick="setCategory('${cat}')" class="text-[11px] px-2.5 py-1 rounded-full font-medium transition ${
+          activeCategory === cat ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white text-gray-600 border hover:bg-gray-50'
+        }">${cat}</button>
+      `).join('');
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderCategories();
+      renderCatalog();
+    }
+
+    function filterProducts() {
+      searchQuery = document.getElementById('search-input').value.toLowerCase();
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const container = document.getElementById('products-container');
+      const usedSlots = calculateTotalCount();
+      const maxSlots = selectedBox ? selectedBox.max : 0;
+      const isBoxFull = usedSlots >= maxSlots;
+
+      const filtered = products.filter(p => {
+        const matchesCategory = activeCategory === "All" || p.category === activeCategory;
+        const codeStr = String(p.code).toLowerCase();
+        const nameStr = String(p.name).toLowerCase();
+        return matchesCategory && (nameStr.includes(searchQuery) || codeStr.includes(searchQuery));
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-gray-400">No matching products found.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(prod => {
+        const code = String(prod.code);
+        const qty = boxCart[code] || 0;
+        const addDisabled = isBoxFull || !selectedBox;
+
+        return `
+          <div class="bg-white border rounded-xl p-3 flex flex-col justify-between shadow-xs">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider truncate max-w-[65%]">${prod.category}</span>
+                <span class="text-[10px] bg-slate-100 text-slate-700 font-mono px-1.5 py-0.5 rounded font-semibold">#${code}</span>
+              </div>
+              <h4 class="font-medium text-gray-900 text-xs leading-snug line-clamp-2">${prod.name}</h4>
+              <p class="text-xs font-black text-gray-900 mt-2">₹${prod.price.toFixed(2)}</p>
+            </div>
+            <div class="mt-3 pt-2 border-t flex justify-end items-center">
+              <div class="flex items-center gap-2">
+                <button onclick="decrementItem('${code}')" class="w-6 h-6 rounded-md border bg-gray-50 flex items-center justify-center font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-30 text-xs" ${qty === 0 ? 'disabled' : ''}>-</button>
+                <span class="text-xs font-bold w-4 text-center">${qty}</span>
+                <button onclick="incrementItem('${code}')" class="w-6 h-6 rounded-md border bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 hover:bg-indigo-100 disabled:opacity-30 text-xs" ${addDisabled ? 'disabled' : ''}>+</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- State Management ---
+    function selectBox(idx) {
+      selectedBox = boxes[idx];
+      boxCart = {};
+      document.getElementById('catalog-section').classList.remove('opacity-40', 'pointer-events-none');
+      document.getElementById('selected-box-tag').classList.remove('hidden');
+      updateUI();
+    }
+
+    function incrementItem(code) {
+      boxCart[code] = (boxCart[code] || 0) + 1;
+      updateUI();
+    }
+
+    function decrementItem(code) {
+      if (boxCart[code] > 0) {
+        boxCart[code] -= 1;
+        if (boxCart[code] === 0) delete boxCart[code];
+      }
+      updateUI();
+    }
+
+    function calculateTotalCount() {
+      return Object.values(boxCart).reduce((sum, qty) => sum + qty, 0);
+    }
+
+    function calculateTotalPrice() {
+      let total = selectedBox ? selectedBox.price : 0;
+      for (const [code, qty] of Object.entries(boxCart)) {
+        const prod = products.find(p => String(p.code) === String(code));
+        if (prod) total += prod.price * qty;
+      }
+      return total;
+    }
+
+    function updateUI() {
+      renderBoxes();
+      renderCatalog();
+
+      const usedSlots = calculateTotalCount();
+      const maxSlots = selectedBox ? selectedBox.max : 0;
+      const total = calculateTotalPrice();
+
+      document.getElementById('capacity-indicator').innerText = `${usedSlots} / ${maxSlots} Items`;
+      document.getElementById('cart-total').innerText = `₹${total.toFixed(2)}`;
+
+      const boxSummary = document.getElementById('box-summary');
+      const btnExcel = document.getElementById('btn-excel');
+      const btnPdf = document.getElementById('btn-pdf');
+
+      const canExport = selectedBox && usedSlots > 0;
+      btnExcel.disabled = !canExport;
+      btnPdf.disabled = !canExport;
+
+      if (selectedBox) {
+        boxSummary.innerText = `[#${selectedBox.code}] ${selectedBox.name} (₹${selectedBox.price.toFixed(2)}) • ${usedSlots}/${maxSlots} filled`;
+      } else {
+        boxSummary.innerText = "No box chosen";
+      }
+    }
+
+    function getCustomerInfo() {
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const note = document.getElementById('cust-note').value.trim();
+
+      if (!name || !phone) {
+        alert("Please enter Customer Name and Contact Number at the top before generating the bill.");
+        document.getElementById('cust-name').focus();
+        return null;
+      }
+      return { name, phone, note };
+    }
+
+    // --- Excel Manual Bill Exporter ---
+    function downloadManualBillExcel() {
+      const cust = getCustomerInfo();
+      if (!cust) return;
+
+      const billRows = [
+        ["MANUAL BILLING ESTIMATION SHEET", ""],
+        ["Customer Name:", cust.name],
+        ["Contact No:", cust.phone],
+        ["Order Ref/Notes:", cust.note || "N/A"],
+        ["Date:", new Date().toLocaleDateString('en-GB')],
+        ["Box Selected:", selectedBox.name],
+        [],
+        ["Item Code", "Product Description", "Quantity", "Rate (₹)", "Total (₹)"],
+        [selectedBox.code, selectedBox.name + " (Gift Box Container)", 1, selectedBox.price.toFixed(2), selectedBox.price.toFixed(2)]
+      ];
+
+      for (const [code, qty] of Object.entries(boxCart)) {
+        const prod = products.find(p => String(p.code) === String(code));
+        if (prod) {
+          const amount = prod.price * qty;
+          billRows.push([prod.code, prod.name, qty, prod.price.toFixed(2), amount.toFixed(2)]);
+        }
+      }
+
+      billRows.push([]);
+      billRows.push(["", "", "", "Grand Total:", calculateTotalPrice().toFixed(2)]);
+
+      const ws = XLSX.utils.aoa_to_sheet(billRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Manual_Bill");
+
+      const safeName = cust.name.replace(/[^a-zA-Z0-9]/g, '_');
+      XLSX.writeFile(wb, `Bill_${safeName}_${Date.now()}.xlsx`);
+    }
+
+    // --- PDF / Thermal Print View ---
+    function openPrintBill() {
+      const cust = getCustomerInfo();
+      if (!cust) return;
+
+      document.getElementById('bill-cust-name').innerText = cust.name;
+      document.getElementById('bill-cust-phone').innerText = cust.phone;
+      document.getElementById('bill-cust-note').innerText = cust.note || "N/A";
+      document.getElementById('bill-date').innerText = new Date().toLocaleDateString('en-GB');
+      document.getElementById('bill-ref').innerText = "EST-" + Math.floor(100000 + Math.random() * 900000);
+
+      const tbody = document.getElementById('bill-items-body');
+      let rowsHTML = `
+        <tr class="border-b">
+          <td class="py-2 font-mono text-gray-700 font-bold">${selectedBox.code}</td>
+          <td class="py-2 font-semibold">${selectedBox.name} (Gift Box Container)</td>
+          <td class="py-2 text-center">1</td>
+          <td class="py-2 text-right">₹${selectedBox.price.toFixed(2)}</td>
+          <td class="py-2 text-right">₹${selectedBox.price.toFixed(2)}</td>
+        </tr>
+      `;
+
+      for (const [code, qty] of Object.entries(boxCart)) {
+        const prod = products.find(p => String(p.code) === String(code));
+        if (prod) {
+          const amount = prod.price * qty;
+          rowsHTML += `
+            <tr class="border-b">
+              <td class="py-2 font-mono text-gray-700">${prod.code}</td>
+              <td class="py-2">${prod.name}</td>
+              <td class="py-2 text-center">${qty}</td>
+              <td class="py-2 text-right">₹${prod.price.toFixed(2)}</td>
+              <td class="py-2 text-right">₹${amount.toFixed(2)}</td>
+            </tr>
+          `;
+        }
+      }
+
+      tbody.innerHTML = rowsHTML;
+      document.getElementById('bill-grand-total').innerText = `₹${calculateTotalPrice().toFixed(2)}`;
+
+      window.print();
+    }
+
+    // Auto-sync on page open
+    syncGoogleSheetLive();
+  </script>
+</body>
+</html>
