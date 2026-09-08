@@ -7,6 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- SheetJS for manual bill Excel export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- jsPDF & AutoTable for direct PDF Generation & File Sharing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     .font-brand { font-family: 'Cinzel', serif; }
@@ -120,15 +123,11 @@
       <!-- Search & Filters -->
       <div class="space-y-3 mb-4">
         <input type="text" id="search-input" oninput="filterProducts()" placeholder="🔍 Search sweets, namkeen, or item codes (e.g. 13775)..." class="w-full text-xs px-4 py-2.5 rounded-xl border border-stone-300 focus:outline-amber-600 bg-white shadow-xs">
-        <div id="category-pills" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto py-1">
-          <!-- Injected via JS -->
-        </div>
+        <div id="category-pills" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto py-1"></div>
       </div>
 
       <!-- Products Grid -->
-      <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-        <!-- Injected via JS -->
-      </div>
+      <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
     </section>
 
   </main>
@@ -148,9 +147,9 @@
         <button id="btn-save-box" onclick="saveCurrentBoxToCart()" disabled class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm">
           + Add Box to Cart
         </button>
-        <button onclick="shareOnWhatsApp()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm flex items-center gap-1.5">
+        <button onclick="shareWhatsAppPDF()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm flex items-center gap-1.5">
           <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-          WhatsApp
+          WhatsApp PDF
         </button>
         <button onclick="toggleCartModal()" class="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition shadow-sm flex items-center gap-1.5">
           <span>🛍️</span> View Cart (<span id="cart-footer-count">0</span>)
@@ -170,9 +169,7 @@
         <button onclick="toggleCartModal()" class="text-stone-400 hover:text-stone-700 text-2xl font-bold">&times;</button>
       </div>
 
-      <div id="cart-items-container" class="overflow-y-auto space-y-4 pr-1 flex-1">
-        <!-- Rendered via JS -->
-      </div>
+      <div id="cart-items-container" class="overflow-y-auto space-y-4 pr-1 flex-1"></div>
 
       <div class="border-t pt-4 mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -180,9 +177,9 @@
           <span id="cart-grand-total" class="text-2xl font-black text-stone-900">₹0.00</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <button onclick="shareOnWhatsApp()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+          <button onclick="shareWhatsAppPDF()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-            WhatsApp
+            WhatsApp PDF
           </button>
           <button id="btn-excel" onclick="downloadManualBillExcel()" class="px-3.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
             <span>📊</span> Excel Bill
@@ -210,7 +207,7 @@
     </div>
   </div>
 
-  <!-- Printable Invoice (System Print / PDF) -->
+  <!-- Printable Invoice (System Print) -->
   <div id="printable-bill" class="hidden p-8 bg-white text-stone-900 max-w-3xl mx-auto">
     <div class="border-b-2 border-stone-800 pb-4 mb-4 flex justify-between items-start">
       <div>
@@ -245,7 +242,7 @@
     let products = [];
 
     // Order State
-    let cartHampers = []; // [{ id, box, cart: { code: qty } }]
+    let cartHampers = [];
     let activeEditingHamperId = null;
 
     // Builder State
@@ -736,8 +733,121 @@
       return { name, phone, mode, location };
     }
 
-    // --- WhatsApp Order Share Engine ---
-    function shareOnWhatsApp() {
+    // --- Helper: Generate Master PDF Document (jsPDF) ---
+    function generateMasterPDF(cust, allHampers) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Brand Header Banner
+      doc.setFillColor(28, 25, 23); // #1c1917
+      doc.rect(0, 0, 210, 32, 'F');
+
+      doc.setTextColor(245, 158, 11); // Amber
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("ANAND SWEETS AND SAVOURIES", 14, 15);
+
+      doc.setTextColor(220, 220, 220);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("Bespoke Gift Hamper - Manual Estimation Slip", 14, 23);
+
+      const todayStr = new Date().toLocaleDateString('en-GB');
+      const estimateNum = "AS-" + Math.floor(100000 + Math.random() * 900000);
+      doc.text(`Date: ${todayStr}`, 155, 15);
+      doc.text(`Estimate #: ${estimateNum}`, 155, 23);
+
+      // Customer Info Card
+      doc.setFillColor(250, 248, 245);
+      doc.setDrawColor(220, 215, 205);
+      doc.roundedRect(14, 37, 182, 22, 2, 2, 'FD');
+
+      doc.setTextColor(50, 50, 50);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.text("Customer:", 18, 44);
+      doc.text("Contact:", 18, 52);
+      doc.text("Delivery Mode:", 105, 44);
+      doc.text("Location / Store:", 105, 52);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(cust.name || "-", 40, 44);
+      doc.text(cust.phone || "-", 40, 52);
+      doc.text(cust.mode || "-", 135, 44);
+      doc.text(cust.location || "-", 135, 52);
+
+      // Table Data Construction
+      const tableRows = [];
+      let grandTotal = 0;
+
+      allHampers.forEach((hamper, idx) => {
+        tableRows.push([
+          { content: `BOX #${idx + 1}: ${hamper.box.name}`, colSpan: 5, styles: { fillColor: [245, 235, 215], fontStyle: 'bold', textColor: [120, 53, 15] } }
+        ]);
+
+        tableRows.push([
+          hamper.box.code,
+          `${hamper.box.name} (Container Box)`,
+          "1",
+          `Rs. ${hamper.box.price.toFixed(2)}`,
+          `Rs. ${hamper.box.price.toFixed(2)}`
+        ]);
+        grandTotal += hamper.box.price;
+
+        for (const [code, qty] of Object.entries(hamper.cart)) {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (prod) {
+            const amt = prod.price * qty;
+            grandTotal += amt;
+            tableRows.push([
+              prod.code,
+              prod.name,
+              String(qty),
+              `Rs. ${prod.price.toFixed(2)}`,
+              `Rs. ${amt.toFixed(2)}`
+            ]);
+          }
+        }
+      });
+
+      doc.autoTable({
+        startY: 64,
+        head: [['Item Code', 'Description / Sweets & Savouries', 'Qty', 'Rate (Rs)', 'Amount (Rs)']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [28, 25, 23], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5, textColor: [40, 40, 40] },
+        columnStyles: {
+          0: { cellWidth: 26, fontStyle: 'bold' },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 15, halign: 'center' },
+          3: { cellWidth: 28, halign: 'right' },
+          4: { cellWidth: 30, halign: 'right' }
+        },
+        margin: { left: 14, right: 14 }
+      });
+
+      // Total Section
+      const finalY = doc.lastAutoTable.finalY + 8;
+      doc.setFillColor(28, 25, 23);
+      doc.roundedRect(120, finalY, 76, 12, 1, 1, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("GRAND TOTAL (Incl. GST):", 123, finalY + 8);
+      doc.text(`Rs. ${grandTotal.toFixed(2)}`, 193, finalY + 8, { align: 'right' });
+
+      // Footer
+      doc.setTextColor(140, 140, 140);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text("Generated by Anand Sweets Studio for Billing / Dispatch Verification.", 14, finalY + 20);
+
+      return { doc, grandTotal };
+    }
+
+    // --- Direct WhatsApp PDF File Share Engine ---
+    async function shareWhatsAppPDF() {
       const cust = getCustomerInfo();
       if (!cust) return;
 
@@ -751,52 +861,44 @@
         return;
       }
 
-      let grandTotal = 0;
-      const messageLines = [
-        `*ANAND SWEETS AND SAVOURIES*`,
-        `*Bespoke Gift Hamper Order Estimation*`,
-        `━━━━━━━━━━━━━━━━━━━━━`,
-        `👤 *Customer:* ${cust.name}`,
-        `📞 *Contact:* ${cust.phone}`,
-        `🚚 *Delivery Mode:* ${cust.mode || 'N/A'}`,
-        `📍 *Location:* ${cust.location || 'N/A'}`,
-        `📅 *Date:* ${new Date().toLocaleDateString('en-GB')}`,
-        `━━━━━━━━━━━━━━━━━━━━━`
-      ];
+      const safeName = cust.name.replace(/[^a-zA-Z0-9]/g, '_');
+      const filename = `Anand_Hamper_Estimate_${safeName}.pdf`;
 
-      allHampers.forEach((hamper, idx) => {
-        let boxTotal = hamper.box.price;
-        messageLines.push(`\n🎁 *BOX #${idx+1}: ${hamper.box.name}* \`[#${hamper.box.code}]\``);
-        messageLines.push(`  • Container Box: ₹${hamper.box.price.toFixed(2)}`);
+      // 1. Build the PDF Document Blob
+      const { doc, grandTotal } = generateMasterPDF(cust, allHampers);
+      const pdfBlob = doc.output('blob');
+      const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
-        for (const [code, qty] of Object.entries(hamper.cart)) {
-          const prod = products.find(p => String(p.code) === String(code));
-          if (prod) {
-            const lineAmt = prod.price * qty;
-            boxTotal += lineAmt;
-            messageLines.push(`  • ${prod.name} \`[#${prod.code}]\` × ${qty} = ₹${lineAmt.toFixed(2)}`);
+      // 2. If mobile device supports Web Share API with files (Android / iOS)
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: 'Anand Sweets Hamper Estimate',
+            text: `Dear ${cust.name}, please find attached your bespoke Anand Sweets gift hamper estimate (Grand Total: Rs. ${grandTotal.toFixed(2)}).`
+          });
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.warn("Native share cancelled or failed, falling back to direct download + chat link", err);
+          } else {
+            return;
           }
         }
-        messageLines.push(`  👉 *Box Subtotal:* ₹${boxTotal.toFixed(2)}`);
-        grandTotal += boxTotal;
-      });
+      }
 
-      messageLines.push(`━━━━━━━━━━━━━━━━━━━━━`);
-      messageLines.push(`💰 *GRAND TOTAL (Incl. GST): ₹${grandTotal.toFixed(2)}*`);
-      messageLines.push(`━━━━━━━━━━━━━━━━━━━━━`);
-      messageLines.push(`_Thank you for choosing Anand Sweets & Savouries!_`);
+      // 3. Fallback for Desktop: Auto-download the PDF & Open WhatsApp Web Chat
+      doc.save(filename);
 
-      const fullMessage = encodeURIComponent(messageLines.join('\n'));
-
-      // Clean phone number (strip spaces, symbols)
       let cleanPhone = cust.phone.replace(/[^0-9]/g, '');
       if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-      // Opens WhatsApp Web or native WhatsApp app directly
+      const msg = encodeURIComponent(`Hello ${cust.name},\nYour Anand Sweets custom gift hamper estimation bill (Rs. ${grandTotal.toFixed(2)}) has been generated and downloaded as PDF. Attaching the PDF copy here.`);
       const waUrl = cleanPhone.length >= 10 
-        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${fullMessage}` 
-        : `https://api.whatsapp.com/send?text=${fullMessage}`;
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}` 
+        : `https://api.whatsapp.com/send?text=${msg}`;
 
+      alert("The official PDF Bill has been downloaded! Opening WhatsApp so you can attach it directly to the customer.");
       window.open(waUrl, '_blank');
     }
 
@@ -854,7 +956,7 @@
       XLSX.writeFile(wb, `Anand_Bill_${safeName}_${Date.now()}.xlsx`);
     }
 
-    // --- PDF / Thermal Print Master Multi-Box View ---
+    // --- PDF / Thermal Print View ---
     function openPrintBill() {
       const cust = getCustomerInfo();
       if (!cust) return;
@@ -869,71 +971,9 @@
         return;
       }
 
-      document.getElementById('bill-cust-name').innerText = cust.name;
-      document.getElementById('bill-cust-phone').innerText = cust.phone;
-      document.getElementById('bill-cust-mode').innerText = cust.mode;
-      document.getElementById('bill-cust-location').innerText = cust.location;
-      document.getElementById('bill-date').innerText = new Date().toLocaleDateString('en-GB');
-      document.getElementById('bill-ref').innerText = "AS-" + Math.floor(100000 + Math.random() * 900000);
-
-      const container = document.getElementById('bill-boxes-breakdown');
-      let grandTotal = 0;
-
-      container.innerHTML = allHampers.map((hamper, idx) => {
-        let boxSubtotal = hamper.box.price;
-        let rowsHTML = `
-          <tr class="border-b">
-            <td class="py-1 font-mono text-stone-700 font-bold">${hamper.box.code}</td>
-            <td class="py-1 font-semibold">${hamper.box.name} (Container)</td>
-            <td class="py-1 text-center">1</td>
-            <td class="py-1 text-right">₹${hamper.box.price.toFixed(2)}</td>
-            <td class="py-1 text-right">₹${hamper.box.price.toFixed(2)}</td>
-          </tr>
-        `;
-
-        for (const [code, qty] of Object.entries(hamper.cart)) {
-          const prod = products.find(p => String(p.code) === String(code));
-          if (prod) {
-            const amount = prod.price * qty;
-            boxSubtotal += amount;
-            rowsHTML += `
-              <tr class="border-b">
-                <td class="py-1 font-mono text-stone-600">${prod.code}</td>
-                <td class="py-1">${prod.name}</td>
-                <td class="py-1 text-center">${qty}</td>
-                <td class="py-1 text-right">₹${prod.price.toFixed(2)}</td>
-                <td class="py-1 text-right">₹${amount.toFixed(2)}</td>
-              </tr>
-            `;
-          }
-        }
-
-        grandTotal += boxSubtotal;
-
-        return `
-          <div class="border rounded-lg p-3">
-            <div class="flex justify-between font-bold text-xs border-b pb-1 mb-1">
-              <span>GIFT BOX #${idx+1}: ${hamper.box.name}</span>
-              <span>Subtotal: ₹${boxSubtotal.toFixed(2)}</span>
-            </div>
-            <table class="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr class="border-b text-stone-400">
-                  <th class="py-1">Code</th>
-                  <th class="py-1">Item Description</th>
-                  <th class="py-1 text-center">Qty</th>
-                  <th class="py-1 text-right">Rate</th>
-                  <th class="py-1 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHTML}</tbody>
-            </table>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('bill-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
-      window.print();
+      const { doc } = generateMasterPDF(cust, allHampers);
+      const safeName = cust.name.replace(/[^a-zA-Z0-9]/g, '_');
+      doc.save(`Anand_Estimate_${safeName}.pdf`);
     }
 
     // Auto-sync on load
