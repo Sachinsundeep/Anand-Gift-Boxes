@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BoxCraft Studio - Hamper Builder & Billing</title>
+  <title>Anand Sweets And Savouries - Custom Gift Hamper Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    .font-brand { font-family: 'Cinzel', serif; }
+    body { font-family: 'Inter', sans-serif; }
     @media print {
       body * { visibility: hidden; }
       #printable-bill, #printable-bill * { visibility: visible; }
@@ -14,113 +17,208 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 pb-36 font-sans antialiased">
+<body class="bg-amber-50/40 text-stone-800 pb-36 antialiased">
 
-  <header class="bg-white border-b sticky top-0 z-30 px-6 py-3 flex justify-between items-center shadow-xs">
-    <div>
-      <h1 class="text-xl font-black text-gray-900 tracking-tight">BoxCraft Studio</h1>
-      <div class="flex items-center gap-2 mt-0.5">
-        <span id="sync-status" class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
-        <p id="sync-text" class="text-xs text-gray-500 font-medium">Connecting to Google Sheet...</p>
+  <!-- Header & Anand Sweets Branding -->
+  <header class="bg-stone-900 text-amber-100 border-b border-amber-900/40 sticky top-0 z-30 px-6 py-3 shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <!-- Embedded Anand Logo -->
+        <div class="w-12 h-12 rounded-full overflow-hidden border border-amber-400/40 bg-black flex items-center justify-center shrink-0">
+          <img src="ANAND LOGO.jpg" onerror="this.src='https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=100&auto=format&fit=crop&q=80'" alt="Anand Sweets" class="w-full h-full object-cover">
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-wider uppercase font-brand text-amber-300">Anand Sweets And Savouries</h1>
+          <div class="flex items-center gap-2">
+            <span id="sync-status" class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+            <p id="sync-text" class="text-[11px] text-amber-200/70 font-medium">Connecting to Google Sheet...</p>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="flex items-center gap-2">
-      <button onclick="syncGoogleSheetLive()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-2 rounded-lg border border-indigo-200 transition flex items-center gap-1.5 shadow-xs">
-        <span>🔄</span> Sync Live Sheet
-      </button>
-      <button onclick="toggleUploadModal()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-3 py-2 rounded-lg border transition">
-        📁 Offline File
-      </button>
+
+      <div class="flex items-center gap-2">
+        <button onclick="syncGoogleSheetLive()" class="text-xs bg-amber-900/60 hover:bg-amber-800 text-amber-200 font-semibold px-3 py-2 rounded-lg border border-amber-700/50 transition flex items-center gap-1.5">
+          <span>🔄</span> <span class="hidden sm:inline">Sync Sheet</span>
+        </button>
+        <button onclick="toggleCartModal()" class="relative text-xs bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+          <span>🎁</span> Cart (<span id="cart-badge-count">0</span>)
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
-    <section class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xs">
-      <div class="flex items-center justify-between mb-3 border-b pb-2">
-        <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
-          <span class="w-2 h-2 bg-indigo-600 rounded-full"></span> Customer & Order Details
+    <!-- Customer & Delivery Details Tile -->
+    <section class="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
+      <div class="flex items-center justify-between mb-3 border-b border-stone-100 pb-2">
+        <h2 class="text-xs font-bold text-stone-900 uppercase tracking-wider flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-amber-600 rounded-full"></span> Customer & Delivery Details
         </h2>
-        <span class="text-[11px] text-gray-400">Required before bill generation</span>
+        <span class="text-[11px] text-stone-400">Master order reference</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Customer Name <span class="text-red-500">*</span></label>
-          <input type="text" id="cust-name" placeholder="e.g. Ramesh Kumar" class="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-indigo-600">
+          <label class="block text-xs font-semibold text-stone-600 mb-1">Customer Name <span class="text-red-500">*</span></label>
+          <input type="text" id="cust-name" placeholder="e.g. Anand Kumar" class="w-full text-xs px-3 py-2 rounded-lg border border-stone-300 focus:outline-amber-600 bg-stone-50/50">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Contact / Mobile <span class="text-red-500">*</span></label>
-          <input type="tel" id="cust-phone" placeholder="e.g. +91 98765 43210" class="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-indigo-600">
+          <label class="block text-xs font-semibold text-stone-600 mb-1">Contact Number <span class="text-red-500">*</span></label>
+          <input type="tel" id="cust-phone" placeholder="e.g. +91 98450 12345" class="w-full text-xs px-3 py-2 rounded-lg border border-stone-300 focus:outline-amber-600 bg-stone-50/50">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Order Ref / Notes</label>
-          <input type="text" id="cust-note" placeholder="e.g. Diwali Hamper Order" class="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 focus:outline-indigo-600">
+          <label class="block text-xs font-semibold text-stone-600 mb-1">Mode of Delivery</label>
+          <select id="delivery-mode" class="w-full text-xs px-3 py-2 rounded-lg border border-stone-300 focus:outline-amber-600 bg-stone-50/50">
+            <option value="Store Pickup">Store Pickup</option>
+            <option value="Local Delivery (Bangalore)">Local Delivery (Bangalore)</option>
+            <option value="Domestic Courier">Domestic Courier</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">Delivery Location / Store</label>
+          <select id="delivery-location" class="w-full text-xs px-3 py-2 rounded-lg border border-stone-300 focus:outline-amber-600 bg-stone-50/50">
+            <option value="Commercial Street (Flagship)">Commercial Street (Flagship)</option>
+            <option value="Jayanagar Store">Jayanagar Store</option>
+            <option value="Indiranagar Store">Indiranagar Store</option>
+            <option value="Koromangala Store">Koromangala Store</option>
+            <option value="Whitefield Store">Whitefield Store</option>
+          </select>
         </div>
       </div>
     </section>
 
+    <!-- Builder Header & Controls -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+      <div>
+        <h2 id="builder-title" class="text-lg font-bold text-stone-900">Customizing Gift Box #<span id="active-box-num">1</span></h2>
+        <p class="text-xs text-stone-500">Pick a box, add products, then add the completed box to your cart</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="confirmClearCurrentBox()" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-lg font-semibold transition">
+          Clear Items
+        </button>
+        <button onclick="confirmResetEntireOrder()" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 px-3 py-2 rounded-lg font-semibold transition">
+          Reset Order
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 1: Select Box -->
     <section>
       <div class="flex items-center justify-between mb-3">
-        <div>
-          <h2 class="text-base font-bold text-gray-900">1. Select a Gift Box</h2>
-          <p class="text-xs text-gray-500">Pick a box to set maximum capacity</p>
-        </div>
-        <span id="selected-box-tag" class="text-xs font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full hidden">
-          Box Selected
+        <span class="text-xs font-bold text-stone-700 uppercase tracking-wider">1. Choose Box Style</span>
+        <span id="selected-box-tag" class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full hidden">
+          Box Active
         </span>
       </div>
       <div id="boxes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <div class="col-span-full py-8 text-center text-xs text-gray-400">Loading gift boxes...</div>
+        <!-- Injected via JS -->
       </div>
     </section>
 
+    <!-- Step 2: Catalog & Search -->
     <section id="catalog-section" class="opacity-40 pointer-events-none transition-opacity duration-300">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h2 class="text-base font-bold text-gray-900">2. Select Products</h2>
-          <p class="text-xs text-gray-500">Add products up to your box capacity limit</p>
+          <span class="text-xs font-bold text-stone-700 uppercase tracking-wider">2. Fill Sweets & Savouries</span>
         </div>
-        <div class="bg-white border px-4 py-2 rounded-xl shadow-xs text-right">
-          <span class="text-xs text-gray-500">Box Capacity: </span>
-          <span id="capacity-indicator" class="text-sm font-bold text-indigo-600">0 / 0 Items</span>
+        <div class="bg-white border border-stone-200 px-4 py-2 rounded-xl shadow-xs text-right">
+          <span class="text-xs text-stone-500">Box Capacity: </span>
+          <span id="capacity-indicator" class="text-sm font-bold text-amber-700">0 / 0 Items</span>
         </div>
       </div>
 
+      <!-- Search & Filters -->
       <div class="space-y-3 mb-4">
-        <input type="text" id="search-input" oninput="filterProducts()" placeholder="🔍 Search by product name or item code..." class="w-full text-xs px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-indigo-600 bg-white shadow-xs">
+        <input type="text" id="search-input" oninput="filterProducts()" placeholder="🔍 Search sweets, namkeen, or item codes (e.g. 13775)..." class="w-full text-xs px-4 py-2.5 rounded-xl border border-stone-300 focus:outline-amber-600 bg-white shadow-xs">
         <div id="category-pills" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto py-1">
-          </div>
+          <!-- Injected via JS -->
+        </div>
       </div>
 
+      <!-- Products Grid -->
       <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-        </div>
+        <!-- Injected via JS -->
+      </div>
     </section>
 
   </main>
 
-  <aside class="fixed bottom-0 left-0 right-0 bg-white border-t px-6 py-4 shadow-2xl z-20">
-    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <!-- Sticky Bottom Active Builder Dock -->
+  <aside class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 px-6 py-3.5 shadow-2xl z-20">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Estimated Total (Incl. GST)</span>
-        <span id="cart-total" class="text-2xl font-black text-gray-900">₹0.00</span>
-        <span id="box-summary" class="text-xs text-gray-500 block">No box chosen</span>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Active Box Total:</span>
+          <span id="current-box-total" class="text-base font-bold text-stone-900">₹0.00</span>
+        </div>
+        <span id="box-summary" class="text-xs text-stone-500 block">No box chosen</span>
       </div>
+
       <div class="flex items-center gap-2">
-        <button id="btn-excel" onclick="downloadManualBillExcel()" disabled class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-xs">
-          <span>📊</span> Export Excel Bill
+        <button id="btn-save-box" onclick="saveCurrentBoxToCart()" disabled class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm">
+          + Add Box to Cart
         </button>
-        <button id="btn-pdf" onclick="openPrintBill()" disabled class="px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-xs">
-          <span>🧾</span> Print / PDF Bill
+        <button onclick="toggleCartModal()" class="px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition shadow-sm flex items-center gap-1.5">
+          <span>🛍️</span> View Order Cart (<span id="cart-footer-count">0</span>)
         </button>
       </div>
     </div>
   </aside>
 
-  <div id="printable-bill" class="hidden p-8 bg-white text-gray-900 max-w-2xl mx-auto">
-    <div class="border-b pb-3 mb-4 flex justify-between items-start">
+  <!-- Cart & Multi-Box Modal -->
+  <div id="cart-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-3 mb-3">
+        <div>
+          <h3 class="font-bold text-stone-900 text-base font-brand tracking-wide">Customer Order Cart</h3>
+          <p class="text-xs text-stone-500">Multiple gift boxes configured for this order</p>
+        </div>
+        <button onclick="toggleCartModal()" class="text-stone-400 hover:text-stone-700 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div id="cart-items-container" class="overflow-y-auto space-y-4 pr-1 flex-1">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="border-t pt-4 mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-xs text-stone-500 block">Grand Total (<span id="cart-total-boxes">0</span> Boxes):</span>
+          <span id="cart-grand-total" class="text-2xl font-black text-stone-900">₹0.00</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-excel" onclick="downloadManualBillExcel()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+            <span>📊</span> Export Excel Bill
+          </button>
+          <button id="btn-pdf" onclick="openPrintBill()" class="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+            <span>🧾</span> Print / PDF Bill
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Popup Modal -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl text-center space-y-3">
+      <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 mx-auto flex items-center justify-center text-lg font-bold">
+        ⚠️
+      </div>
+      <h4 id="confirm-title" class="text-sm font-bold text-stone-900">Confirm Action</h4>
+      <p id="confirm-message" class="text-xs text-stone-500">Are you sure you want to proceed?</p>
+      <div class="flex justify-center gap-2 pt-2">
+        <button onclick="closeConfirmModal(false)" class="px-4 py-2 rounded-lg border text-xs font-semibold text-stone-600">No, Cancel</button>
+        <button id="confirm-btn-yes" onclick="closeConfirmModal(true)" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold">Yes, Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Invoice (System Print / PDF) -->
+  <div id="printable-bill" class="hidden p-8 bg-white text-stone-900 max-w-3xl mx-auto">
+    <div class="border-b-2 border-stone-800 pb-4 mb-4 flex justify-between items-start">
       <div>
-        <h2 class="text-xl font-bold uppercase tracking-tight">Manual Estimation / Bill Slip</h2>
-        <p class="text-xs text-gray-500">BoxCraft Studio Custom Hamper</p>
+        <h1 class="text-xl font-black uppercase font-brand tracking-wide">Anand Sweets And Savouries</h1>
+        <p class="text-xs text-stone-600 font-medium">Bespoke Gift Hamper & Estimation Slip</p>
       </div>
       <div class="text-right text-xs">
         <p><strong>Date:</strong> <span id="bill-date"></span></p>
@@ -128,46 +226,20 @@
       </div>
     </div>
 
-    <div class="bg-gray-50 p-3 rounded border text-xs mb-4 grid grid-cols-2 gap-2">
+    <div class="bg-amber-50/50 p-3 rounded-lg border border-amber-200/60 text-xs mb-4 grid grid-cols-2 gap-2">
       <div><strong>Customer:</strong> <span id="bill-cust-name"></span></div>
-      <div><strong>Mobile:</strong> <span id="bill-cust-phone"></span></div>
-      <div class="col-span-2"><strong>Notes / Ref:</strong> <span id="bill-cust-note"></span></div>
+      <div><strong>Contact:</strong> <span id="bill-cust-phone"></span></div>
+      <div><strong>Delivery Mode:</strong> <span id="bill-cust-mode"></span></div>
+      <div><strong>Location:</strong> <span id="bill-cust-location"></span></div>
     </div>
 
-    <table class="w-full text-xs text-left border-collapse mb-4">
-      <thead>
-        <tr class="border-b-2 border-gray-800">
-          <th class="py-2">Item Code</th>
-          <th class="py-2">Item Description</th>
-          <th class="py-2 text-center">Qty</th>
-          <th class="py-2 text-right">Price</th>
-          <th class="py-2 text-right">Total</th>
-        </tr>
-      </thead>
-      <tbody id="bill-items-body"></tbody>
-      <tfoot>
-        <tr class="border-t-2 border-gray-800 font-bold">
-          <td colspan="4" class="py-2 text-right">Grand Total:</td>
-          <td id="bill-grand-total" class="py-2 text-right font-black"></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+    <div id="bill-boxes-breakdown" class="space-y-4 mb-4">
+      <!-- Box by Box Breakdown Injected via JS -->
+    </div>
 
-  <div id="upload-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-gray-900 text-sm">Offline Excel File Upload</h3>
-        <button onclick="toggleUploadModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold">&times;</button>
-      </div>
-      <p class="text-xs text-gray-600">
-        Upload your downloaded <strong>Combo Boxes.xlsx</strong> directly if working completely offline.
-      </p>
-      <input type="file" id="offline-file-input" accept=".xlsx, .xls" class="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 w-full" />
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="toggleUploadModal()" class="px-3 py-1.5 rounded-lg border text-xs font-semibold text-gray-600">Cancel</button>
-        <button onclick="processOfflineExcel()" class="px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700">Load File</button>
-      </div>
+    <div class="border-t-2 border-stone-800 pt-3 flex justify-between items-center">
+      <span class="text-sm font-bold uppercase">Grand Total (Incl. GST):</span>
+      <span id="bill-grand-total" class="text-xl font-black">₹0.00</span>
     </div>
   </div>
 
@@ -176,12 +248,20 @@
 
     let boxes = [];
     let products = [];
+    let deliveryData = { modes: [], locations: [] };
+
+    // Order State
+    let cartHampers = []; // Array of saved boxes: [{ id, box, cart: { code: qty } }]
+    let activeEditingHamperId = null;
+
+    // Builder State
     let selectedBox = null;
-    let boxCart = {};
+    let currentBoxCart = {}; // { productCode: qty }
     let activeCategory = "All";
     let searchQuery = "";
+    let confirmCallback = null;
 
-    // --- JSONP Google Sheets Integration (No CORS Restrictions) ---
+    // --- Google Sheets JSONP Live Loader ---
     function syncGoogleSheetLive() {
       const syncStatus = document.getElementById('sync-status');
       const syncText = document.getElementById('sync-text');
@@ -202,34 +282,26 @@
         const syncStatus = document.getElementById('sync-status');
         const syncText = document.getElementById('sync-text');
         syncStatus.className = "inline-block w-2 h-2 rounded-full bg-red-500";
-        syncText.innerText = "Connection failed. Please check internet connection.";
+        syncText.innerText = "Sync failed. Check sheet permissions.";
       };
       document.body.appendChild(script);
     }
 
-    // Callbacks invoked by Google Sheets
     window.onBoxesLoaded = function(json) {
       try {
         const cols = json.table.cols.map(c => (c ? c.label.trim() : ''));
         boxes = json.table.rows.map((r, idx) => {
           const rowData = {};
-          r.c.forEach((cell, i) => {
-            rowData[cols[i]] = cell ? cell.v : '';
-          });
-
+          r.c.forEach((cell, i) => { rowData[cols[i]] = cell ? cell.v : ''; });
           return {
-            code: rowData["Code"] || rowData["Gift Box Code"] || rowData["Box Code"] || `BOX-${idx+1}`,
-            name: rowData["Gift Box Name"] || rowData["Box Name"] || `Gift Box ${idx+1}`,
+            code: rowData["Code"] || rowData["Gift Box Code"] || `BOX-${idx+1}`,
+            name: rowData["Gift Box Name"] || rowData["Box Name"] || `Box ${idx+1}`,
             price: parseFloat(rowData["Base price"] || rowData["Base Price"] || 0),
             max: parseInt(rowData["Max Item"] || rowData["Max Items"] || 5, 10)
           };
         });
-
-        // Next load Products
         loadSheetJSONP("Products", "onProductsLoaded");
-      } catch (e) {
-        console.error("Error parsing boxes:", e);
-      }
+      } catch (e) { console.error(e); }
     };
 
     window.onProductsLoaded = function(json) {
@@ -237,10 +309,7 @@
         const cols = json.table.cols.map(c => (c ? c.label.trim() : ''));
         products = json.table.rows.map(r => {
           const rowData = {};
-          r.c.forEach((cell, i) => {
-            rowData[cols[i]] = cell ? cell.v : '';
-          });
-
+          r.c.forEach((cell, i) => { rowData[cols[i]] = cell ? cell.v : ''; });
           return {
             category: rowData["Category"] || "General",
             code: String(rowData["Code"] || rowData["Item Code"] || "N/A"),
@@ -249,84 +318,228 @@
           };
         }).filter(p => p.name !== "Unnamed Item");
 
-        const syncStatus = document.getElementById('sync-status');
-        const syncText = document.getElementById('sync-text');
-        syncStatus.className = "inline-block w-2 h-2 rounded-full bg-emerald-500";
-        syncText.innerText = `Live Connected (${products.length} Products, ${boxes.length} Boxes)`;
-
-        renderBoxes();
-        renderCategories();
-        updateUI();
-      } catch (e) {
-        console.error("Error parsing products:", e);
-      }
+        // Attempt to load 3rd sheet for Delivery options
+        loadSheetJSONP("Delivery", "onDeliveryLoaded");
+      } catch (e) { console.error(e); }
     };
 
-    // --- Offline File Support ---
-    function toggleUploadModal() {
-      document.getElementById('upload-modal').classList.toggle('hidden');
-    }
+    window.onDeliveryLoaded = function(json) {
+      try {
+        if (json && json.table && json.table.rows) {
+          const cols = json.table.cols.map(c => (c ? c.label.trim() : ''));
+          const modes = new Set();
+          const locations = new Set();
 
-    function processOfflineExcel() {
-      const fileInput = document.getElementById('offline-file-input');
-      const file = fileInput.files[0];
-      if (!file) {
-        alert("Please select a file first.");
-        return;
+          json.table.rows.forEach(r => {
+            r.c.forEach((cell, i) => {
+              const val = cell ? String(cell.v).trim() : '';
+              if (val) {
+                const header = cols[i].toLowerCase();
+                if (header.includes("mode")) modes.add(val);
+                else if (header.includes("location") || header.includes("store")) locations.add(val);
+              }
+            });
+          });
+
+          if (modes.size > 0) populateSelect("delivery-mode", Array.from(modes));
+          if (locations.size > 0) populateSelect("delivery-location", Array.from(locations));
+        }
+      } catch (e) {
+        console.warn("Delivery sheet optional fallback in use.");
       }
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
+      const syncStatus = document.getElementById('sync-status');
+      const syncText = document.getElementById('sync-text');
+      syncStatus.className = "inline-block w-2 h-2 rounded-full bg-emerald-500";
+      syncText.innerText = `Connected (${products.length} Items, ${boxes.length} Boxes)`;
 
-          const boxSheet = workbook.Sheets["Boxes"] || workbook.Sheets[workbook.SheetNames[0]];
-          const prodSheet = workbook.Sheets["Products"] || workbook.Sheets[workbook.SheetNames[1]];
+      renderBoxes();
+      renderCategories();
+      updateUI();
+    };
 
-          const rawBoxes = XLSX.utils.sheet_to_json(boxSheet);
-          boxes = rawBoxes.map((b, idx) => ({
-            code: b["Code"] || b["Gift Box Code"] || `BOX-${idx+1}`,
-            name: b["Gift Box Name"] || b["Box Name"] || "Gift Box",
-            price: parseFloat(b["Base price"] || b["Base Price"] || 0),
-            max: parseInt(b["Max Item"] || b["Max Items"] || 5, 10)
-          }));
-
-          const rawProducts = XLSX.utils.sheet_to_json(prodSheet);
-          products = rawProducts.map(p => ({
-            category: p["Category"] || "General",
-            code: String(p["Code"] || p["Item Code"] || "N/A"),
-            name: p["Product Name"] || "Unnamed Item",
-            price: parseFloat(p["Total Price"] || p["Price"] || 0)
-          }));
-
-          document.getElementById('sync-status').className = "inline-block w-2 h-2 rounded-full bg-blue-500";
-          document.getElementById('sync-text').innerText = `Loaded from Local File (${products.length} Products)`;
-
-          toggleUploadModal();
-          renderBoxes();
-          renderCategories();
-          updateUI();
-        } catch (err) {
-          alert("Error parsing offline file.");
-        }
-      };
-      reader.readAsArrayBuffer(file);
+    function populateSelect(elemId, items) {
+      const el = document.getElementById(elemId);
+      el.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
     }
 
-    // --- Render Functions ---
+    // --- Box Selection (Preserves Items) ---
+    function selectBox(idx) {
+      const newBox = boxes[idx];
+      const currentItemsCount = calculateCurrentBoxItemsCount();
+
+      // Feature 8: Do NOT clear items when switching boxes
+      if (newBox.max < currentItemsCount) {
+        alert(`Warning: The selected ${newBox.name} only holds ${newBox.max} items, but you currently have ${currentItemsCount} items. Please remove ${currentItemsCount - newBox.max} items or pick a larger box.`);
+      }
+
+      selectedBox = newBox;
+      document.getElementById('catalog-section').classList.remove('opacity-40', 'pointer-events-none');
+      document.getElementById('selected-box-tag').classList.remove('hidden');
+      updateUI();
+    }
+
+    // --- Product Counter Operations ---
+    function incrementItem(code) {
+      currentBoxCart[code] = (currentBoxCart[code] || 0) + 1;
+      updateUI();
+    }
+
+    function decrementItem(code) {
+      if (currentBoxCart[code] > 0) {
+        currentBoxCart[code] -= 1;
+        if (currentBoxCart[code] === 0) delete currentBoxCart[code];
+      }
+      updateUI();
+    }
+
+    function calculateCurrentBoxItemsCount() {
+      return Object.values(currentBoxCart).reduce((sum, q) => sum + q, 0);
+    }
+
+    function calculateCurrentBoxPrice() {
+      let total = selectedBox ? selectedBox.price : 0;
+      for (const [code, qty] of Object.entries(currentBoxCart)) {
+        const prod = products.find(p => String(p.code) === String(code));
+        if (prod) total += prod.price * qty;
+      }
+      return total;
+    }
+
+    // --- Cart & Multi-Box Management ---
+    function saveCurrentBoxToCart() {
+      const itemsCount = calculateCurrentBoxItemsCount();
+      if (!selectedBox || itemsCount === 0) return;
+
+      if (activeEditingHamperId) {
+        // Update existing box
+        const idx = cartHampers.findIndex(h => h.id === activeEditingHamperId);
+        if (idx !== -1) {
+          cartHampers[idx] = {
+            id: activeEditingHamperId,
+            box: selectedBox,
+            cart: { ...currentBoxCart }
+          };
+        }
+        activeEditingHamperId = null;
+      } else {
+        // Add new box
+        cartHampers.push({
+          id: 'hamper_' + Date.now(),
+          box: selectedBox,
+          cart: { ...currentBoxCart }
+        });
+      }
+
+      // Reset builder for next box
+      currentBoxCart = {};
+      selectedBox = null;
+      document.getElementById('catalog-section').classList.add('opacity-40', 'pointer-events-none');
+      document.getElementById('selected-box-tag').classList.add('hidden');
+      document.getElementById('active-box-num').innerText = cartHampers.length + 1;
+      document.getElementById('builder-title').innerHTML = `Customizing Gift Box #<span id="active-box-num">${cartHampers.length + 1}</span>`;
+
+      updateUI();
+      renderCartModal();
+      toggleCartModal();
+    }
+
+    function editHamperFromCart(id) {
+      const hamper = cartHampers.find(h => h.id === id);
+      if (!hamper) return;
+
+      activeEditingHamperId = hamper.id;
+      selectedBox = hamper.box;
+      currentBoxCart = { ...hamper.cart };
+
+      document.getElementById('builder-title').innerText = `Editing Saved Gift Box (${hamper.box.name})`;
+      document.getElementById('catalog-section').classList.remove('opacity-40', 'pointer-events-none');
+      document.getElementById('selected-box-tag').classList.remove('hidden');
+
+      toggleCartModal();
+      updateUI();
+      window.scrollTo({ top: 300, behavior: 'smooth' });
+    }
+
+    function removeHamperFromCart(id) {
+      showConfirmDialog("Remove Box", "Are you sure you want to remove this customized gift box from your cart?", (confirmed) => {
+        if (confirmed) {
+          cartHampers = cartHampers.filter(h => h.id !== id);
+          if (activeEditingHamperId === id) {
+            activeEditingHamperId = null;
+            currentBoxCart = {};
+            selectedBox = null;
+            document.getElementById('catalog-section').classList.add('opacity-40', 'pointer-events-none');
+          }
+          updateUI();
+          renderCartModal();
+        }
+      });
+    }
+
+    // --- Confirm Dialog & Clear Actions ---
+    function showConfirmDialog(title, message, callback) {
+      document.getElementById('confirm-title').innerText = title;
+      document.getElementById('confirm-message').innerText = message;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+      confirmCallback = callback;
+    }
+
+    function closeConfirmModal(result) {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      if (confirmCallback) {
+        confirmCallback(result);
+        confirmCallback = null;
+      }
+    }
+
+    function confirmClearCurrentBox() {
+      showConfirmDialog("Clear Current Box Items", "Are you sure you want to clear all sweets and snacks chosen for this box?", (confirmed) => {
+        if (confirmed) {
+          currentBoxCart = {};
+          updateUI();
+        }
+      });
+    }
+
+    function confirmResetEntireOrder() {
+      showConfirmDialog("Reset Entire Order", "This will clear all configured boxes, cart items, and customer information. Continue?", (confirmed) => {
+        if (confirmed) {
+          cartHampers = [];
+          currentBoxCart = {};
+          selectedBox = null;
+          activeEditingHamperId = null;
+          document.getElementById('cust-name').value = '';
+          document.getElementById('cust-phone').value = '';
+          document.getElementById('catalog-section').classList.add('opacity-40', 'pointer-events-none');
+          document.getElementById('selected-box-tag').classList.add('hidden');
+          document.getElementById('active-box-num').innerText = "1";
+          updateUI();
+          renderCartModal();
+        }
+      });
+    }
+
+    // --- Modal Toggles ---
+    function toggleCartModal() {
+      const modal = document.getElementById('cart-modal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) renderCartModal();
+    }
+
+    // --- Renders ---
     function renderBoxes() {
       const container = document.getElementById('boxes-container');
       container.innerHTML = boxes.map((box, idx) => {
-        const isSelected = selectedBox && selectedBox.name === box.name;
+        const isSelected = selectedBox && selectedBox.code === box.code;
         return `
           <div onclick="selectBox(${idx})" class="p-3 border-2 rounded-xl cursor-pointer transition text-center ${
-            isSelected ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-1 ring-indigo-500' : 'border-gray-200 bg-white hover:border-gray-300'
+            isSelected ? 'border-amber-600 bg-amber-50/60 shadow-xs ring-1 ring-amber-500' : 'border-stone-200 bg-white hover:border-stone-300'
           }">
-            <span class="text-[9px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase">#${box.code}</span>
-            <h3 class="font-bold text-xs text-gray-900 mt-1 truncate">${box.name}</h3>
-            <span class="inline-block mt-1 text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">Max ${box.max} Items</span>
-            <p class="text-xs text-gray-700 font-black mt-1">₹${box.price.toFixed(2)}</p>
+            <span class="text-[9px] font-mono bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded font-bold uppercase">#${box.code}</span>
+            <h3 class="font-bold text-xs text-stone-900 mt-1 truncate">${box.name}</h3>
+            <span class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">Max ${box.max} Items</span>
+            <p class="text-xs text-stone-800 font-black mt-1">₹${box.price.toFixed(2)}</p>
           </div>
         `;
       }).join('');
@@ -337,7 +550,7 @@
       const container = document.getElementById('category-pills');
       container.innerHTML = categories.map(cat => `
         <button onclick="setCategory('${cat}')" class="text-[11px] px-2.5 py-1 rounded-full font-medium transition ${
-          activeCategory === cat ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white text-gray-600 border hover:bg-gray-50'
+          activeCategory === cat ? 'bg-stone-900 text-amber-300 shadow-xs' : 'bg-white text-stone-600 border hover:bg-stone-50'
         }">${cat}</button>
       `).join('');
     }
@@ -355,7 +568,7 @@
 
     function renderCatalog() {
       const container = document.getElementById('products-container');
-      const usedSlots = calculateTotalCount();
+      const usedSlots = calculateCurrentBoxItemsCount();
       const maxSlots = selectedBox ? selectedBox.max : 0;
       const isBoxFull = usedSlots >= maxSlots;
 
@@ -367,30 +580,30 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-gray-400">No matching products found.</div>`;
+        container.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-stone-400">No matching sweets or savouries found.</div>`;
         return;
       }
 
       container.innerHTML = filtered.map(prod => {
         const code = String(prod.code);
-        const qty = boxCart[code] || 0;
+        const qty = currentBoxCart[code] || 0;
         const addDisabled = isBoxFull || !selectedBox;
 
         return `
           <div class="bg-white border rounded-xl p-3 flex flex-col justify-between shadow-xs">
             <div>
               <div class="flex justify-between items-center mb-1">
-                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider truncate max-w-[65%]">${prod.category}</span>
-                <span class="text-[10px] bg-slate-100 text-slate-700 font-mono px-1.5 py-0.5 rounded font-semibold">#${code}</span>
+                <span class="text-[9px] uppercase font-bold text-stone-400 tracking-wider truncate max-w-[65%]">${prod.category}</span>
+                <span class="text-[10px] bg-stone-100 text-stone-700 font-mono px-1.5 py-0.5 rounded font-semibold">#${code}</span>
               </div>
-              <h4 class="font-medium text-gray-900 text-xs leading-snug line-clamp-2">${prod.name}</h4>
-              <p class="text-xs font-black text-gray-900 mt-2">₹${prod.price.toFixed(2)}</p>
+              <h4 class="font-medium text-stone-900 text-xs leading-snug line-clamp-2">${prod.name}</h4>
+              <p class="text-xs font-black text-stone-900 mt-2">₹${prod.price.toFixed(2)}</p>
             </div>
             <div class="mt-3 pt-2 border-t flex justify-end items-center">
               <div class="flex items-center gap-2">
-                <button onclick="decrementItem('${code}')" class="w-6 h-6 rounded-md border bg-gray-50 flex items-center justify-center font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-30 text-xs" ${qty === 0 ? 'disabled' : ''}>-</button>
+                <button onclick="decrementItem('${code}')" class="w-6 h-6 rounded-md border bg-stone-50 flex items-center justify-center font-bold text-stone-600 hover:bg-stone-100 disabled:opacity-30 text-xs" ${qty === 0 ? 'disabled' : ''}>-</button>
                 <span class="text-xs font-bold w-4 text-center">${qty}</span>
-                <button onclick="incrementItem('${code}')" class="w-6 h-6 rounded-md border bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 hover:bg-indigo-100 disabled:opacity-30 text-xs" ${addDisabled ? 'disabled' : ''}>+</button>
+                <button onclick="incrementItem('${code}')" class="w-6 h-6 rounded-md border bg-amber-50 flex items-center justify-center font-bold text-amber-700 hover:bg-amber-100 disabled:opacity-30 text-xs" ${addDisabled ? 'disabled' : ''}>+</button>
               </div>
             </div>
           </div>
@@ -398,161 +611,242 @@
       }).join('');
     }
 
-    // --- State Management ---
-    function selectBox(idx) {
-      selectedBox = boxes[idx];
-      boxCart = {};
-      document.getElementById('catalog-section').classList.remove('opacity-40', 'pointer-events-none');
-      document.getElementById('selected-box-tag').classList.remove('hidden');
-      updateUI();
-    }
+    function renderCartModal() {
+      const container = document.getElementById('cart-items-container');
+      document.getElementById('cart-total-boxes').innerText = cartHampers.length;
 
-    function incrementItem(code) {
-      boxCart[code] = (boxCart[code] || 0) + 1;
-      updateUI();
-    }
+      let grandTotal = 0;
 
-    function decrementItem(code) {
-      if (boxCart[code] > 0) {
-        boxCart[code] -= 1;
-        if (boxCart[code] === 0) delete boxCart[code];
+      if (cartHampers.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-xs text-stone-400">Your cart is empty. Build and add a gift box first.</div>`;
+        document.getElementById('cart-grand-total').innerText = "₹0.00";
+        return;
       }
-      updateUI();
-    }
 
-    function calculateTotalCount() {
-      return Object.values(boxCart).reduce((sum, qty) => sum + qty, 0);
-    }
+      container.innerHTML = cartHampers.map((hamper, idx) => {
+        let boxTotal = hamper.box.price;
+        const itemsList = Object.entries(hamper.cart).map(([code, qty]) => {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (!prod) return '';
+          const lineTotal = prod.price * qty;
+          boxTotal += lineTotal;
+          return `
+            <div class="flex justify-between text-xs py-1 border-b border-stone-100">
+              <span class="text-stone-700"><span class="font-mono text-stone-400">#${prod.code}</span> ${prod.name} &times; ${qty}</span>
+              <span class="font-semibold text-stone-800">₹${lineTotal.toFixed(2)}</span>
+            </div>
+          `;
+        }).join('');
 
-    function calculateTotalPrice() {
-      let total = selectedBox ? selectedBox.price : 0;
-      for (const [code, qty] of Object.entries(boxCart)) {
-        const prod = products.find(p => String(p.code) === String(code));
-        if (prod) total += prod.price * qty;
-      }
-      return total;
+        grandTotal += boxTotal;
+
+        return `
+          <div class="border rounded-xl p-4 bg-stone-50/50">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">Box #${idx+1}</span>
+                <h4 class="font-bold text-stone-900 text-sm mt-1">${hamper.box.name} <span class="font-mono text-stone-400 text-xs">(#${hamper.box.code})</span></h4>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-black text-stone-900">₹${boxTotal.toFixed(2)}</span>
+                <button onclick="editHamperFromCart('${hamper.id}')" class="text-xs bg-white border border-stone-300 hover:bg-stone-100 px-2.5 py-1 rounded-md font-semibold text-stone-700">Edit</button>
+                <button onclick="removeHamperFromCart('${hamper.id}')" class="text-xs bg-red-50 border border-red-200 hover:bg-red-100 px-2 py-1 rounded-md font-semibold text-red-600">Delete</button>
+              </div>
+            </div>
+            <div class="space-y-0.5 mt-2 pl-2 border-l-2 border-amber-300">
+              <div class="flex justify-between text-xs py-0.5 text-stone-500">
+                <span>Gift Box Container Base Price</span>
+                <span>₹${hamper.box.price.toFixed(2)}</span>
+              </div>
+              ${itemsList}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('cart-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
     }
 
     function updateUI() {
       renderBoxes();
       renderCatalog();
 
-      const usedSlots = calculateTotalCount();
+      const usedSlots = calculateCurrentBoxItemsCount();
       const maxSlots = selectedBox ? selectedBox.max : 0;
-      const total = calculateTotalPrice();
+      const curBoxPrice = calculateCurrentBoxPrice();
 
       document.getElementById('capacity-indicator').innerText = `${usedSlots} / ${maxSlots} Items`;
-      document.getElementById('cart-total').innerText = `₹${total.toFixed(2)}`;
+      document.getElementById('current-box-total').innerText = `₹${curBoxPrice.toFixed(2)}`;
 
       const boxSummary = document.getElementById('box-summary');
-      const btnExcel = document.getElementById('btn-excel');
-      const btnPdf = document.getElementById('btn-pdf');
+      const btnSaveBox = document.getElementById('btn-save-box');
 
-      const canExport = selectedBox && usedSlots > 0;
-      btnExcel.disabled = !canExport;
-      btnPdf.disabled = !canExport;
+      // Cart badges
+      const totalBoxesInCart = cartHampers.length;
+      document.getElementById('cart-badge-count').innerText = totalBoxesInCart;
+      document.getElementById('cart-footer-count').innerText = totalBoxesInCart;
+
+      btnSaveBox.disabled = !selectedBox || usedSlots === 0;
 
       if (selectedBox) {
-        boxSummary.innerText = `[#${selectedBox.code}] ${selectedBox.name} (₹${selectedBox.price.toFixed(2)}) • ${usedSlots}/${maxSlots} filled`;
+        boxSummary.innerText = `[#${selectedBox.code}] ${selectedBox.name} • ${usedSlots}/${maxSlots} items selected`;
       } else {
         boxSummary.innerText = "No box chosen";
       }
     }
 
+    // --- Customer Details Helper ---
     function getCustomerInfo() {
       const name = document.getElementById('cust-name').value.trim();
       const phone = document.getElementById('cust-phone').value.trim();
-      const note = document.getElementById('cust-note').value.trim();
+      const mode = document.getElementById('delivery-mode').value;
+      const location = document.getElementById('delivery-location').value;
 
       if (!name || !phone) {
-        alert("Please enter Customer Name and Contact Number at the top before generating the bill.");
+        alert("Please enter Customer Name and Contact Number at the top before exporting.");
         document.getElementById('cust-name').focus();
         return null;
       }
-      return { name, phone, note };
+      return { name, phone, mode, location };
     }
 
-    // --- Excel Manual Bill Exporter ---
+    // --- Excel Master Multi-Box Exporter ---
     function downloadManualBillExcel() {
       const cust = getCustomerInfo();
       if (!cust) return;
 
-      const billRows = [
-        ["MANUAL BILLING ESTIMATION SHEET", ""],
-        ["Customer Name:", cust.name],
-        ["Contact No:", cust.phone],
-        ["Order Ref/Notes:", cust.note || "N/A"],
-        ["Date:", new Date().toLocaleDateString('en-GB')],
-        ["Box Selected:", selectedBox.name],
-        [],
-        ["Item Code", "Product Description", "Quantity", "Rate (₹)", "Total (₹)"],
-        [selectedBox.code, selectedBox.name + " (Gift Box Container)", 1, selectedBox.price.toFixed(2), selectedBox.price.toFixed(2)]
-      ];
-
-      for (const [code, qty] of Object.entries(boxCart)) {
-        const prod = products.find(p => String(p.code) === String(code));
-        if (prod) {
-          const amount = prod.price * qty;
-          billRows.push([prod.code, prod.name, qty, prod.price.toFixed(2), amount.toFixed(2)]);
-        }
+      const allHampers = [...cartHampers];
+      if (selectedBox && calculateCurrentBoxItemsCount() > 0) {
+        allHampers.push({ box: selectedBox, cart: { ...currentBoxCart } });
       }
 
+      if (allHampers.length === 0) {
+        alert("Please add at least one box to cart before exporting.");
+        return;
+      }
+
+      const billRows = [
+        ["ANAND SWEETS AND SAVOURIES - ESTIMATION BILL", ""],
+        ["Customer Name:", cust.name],
+        ["Contact No:", cust.phone],
+        ["Delivery Mode:", cust.mode],
+        ["Location / Branch:", cust.location],
+        ["Date:", new Date().toLocaleDateString('en-GB')],
+        [],
+        ["Box #", "Item Code", "Description / Product", "Qty", "Rate (₹)", "Amount (₹)"]
+      ];
+
+      let grandTotal = 0;
+
+      allHampers.forEach((hamper, idx) => {
+        const boxNum = `Box ${idx + 1}`;
+        billRows.push([boxNum, hamper.box.code, `${hamper.box.name} (Container)`, 1, hamper.box.price.toFixed(2), hamper.box.price.toFixed(2)]);
+        grandTotal += hamper.box.price;
+
+        for (const [code, qty] of Object.entries(hamper.cart)) {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (prod) {
+            const amount = prod.price * qty;
+            grandTotal += amount;
+            billRows.push([boxNum, prod.code, prod.name, qty, prod.price.toFixed(2), amount.toFixed(2)]);
+          }
+        }
+      });
+
       billRows.push([]);
-      billRows.push(["", "", "", "Grand Total:", calculateTotalPrice().toFixed(2)]);
+      billRows.push(["", "", "", "", "Grand Total:", grandTotal.toFixed(2)]);
 
       const ws = XLSX.utils.aoa_to_sheet(billRows);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Manual_Bill");
+      XLSX.utils.book_append_sheet(wb, ws, "Hamper_Bill");
 
       const safeName = cust.name.replace(/[^a-zA-Z0-9]/g, '_');
-      XLSX.writeFile(wb, `Bill_${safeName}_${Date.now()}.xlsx`);
+      XLSX.writeFile(wb, `Anand_Bill_${safeName}_${Date.now()}.xlsx`);
     }
 
-    // --- PDF / Thermal Print View ---
+    // --- PDF / Print Master Multi-Box View ---
     function openPrintBill() {
       const cust = getCustomerInfo();
       if (!cust) return;
 
-      document.getElementById('bill-cust-name').innerText = cust.name;
-      document.getElementById('bill-cust-phone').innerText = cust.phone;
-      document.getElementById('bill-cust-note').innerText = cust.note || "N/A";
-      document.getElementById('bill-date').innerText = new Date().toLocaleDateString('en-GB');
-      document.getElementById('bill-ref').innerText = "EST-" + Math.floor(100000 + Math.random() * 900000);
-
-      const tbody = document.getElementById('bill-items-body');
-      let rowsHTML = `
-        <tr class="border-b">
-          <td class="py-2 font-mono text-gray-700 font-bold">${selectedBox.code}</td>
-          <td class="py-2 font-semibold">${selectedBox.name} (Gift Box Container)</td>
-          <td class="py-2 text-center">1</td>
-          <td class="py-2 text-right">₹${selectedBox.price.toFixed(2)}</td>
-          <td class="py-2 text-right">₹${selectedBox.price.toFixed(2)}</td>
-        </tr>
-      `;
-
-      for (const [code, qty] of Object.entries(boxCart)) {
-        const prod = products.find(p => String(p.code) === String(code));
-        if (prod) {
-          const amount = prod.price * qty;
-          rowsHTML += `
-            <tr class="border-b">
-              <td class="py-2 font-mono text-gray-700">${prod.code}</td>
-              <td class="py-2">${prod.name}</td>
-              <td class="py-2 text-center">${qty}</td>
-              <td class="py-2 text-right">₹${prod.price.toFixed(2)}</td>
-              <td class="py-2 text-right">₹${amount.toFixed(2)}</td>
-            </tr>
-          `;
-        }
+      const allHampers = [...cartHampers];
+      if (selectedBox && calculateCurrentBoxItemsCount() > 0) {
+        allHampers.push({ box: selectedBox, cart: { ...currentBoxCart } });
       }
 
-      tbody.innerHTML = rowsHTML;
-      document.getElementById('bill-grand-total').innerText = `₹${calculateTotalPrice().toFixed(2)}`;
+      if (allHampers.length === 0) {
+        alert("Please add at least one box to cart before printing.");
+        return;
+      }
 
+      document.getElementById('bill-cust-name').innerText = cust.name;
+      document.getElementById('bill-cust-phone').innerText = cust.phone;
+      document.getElementById('bill-cust-mode').innerText = cust.mode;
+      document.getElementById('bill-cust-location').innerText = cust.location;
+      document.getElementById('bill-date').innerText = new Date().toLocaleDateString('en-GB');
+      document.getElementById('bill-ref').innerText = "AS-" + Math.floor(100000 + Math.random() * 900000);
+
+      const container = document.getElementById('bill-boxes-breakdown');
+      let grandTotal = 0;
+
+      container.innerHTML = allHampers.map((hamper, idx) => {
+        let boxSubtotal = hamper.box.price;
+        let rowsHTML = `
+          <tr class="border-b">
+            <td class="py-1 font-mono text-stone-700 font-bold">${hamper.box.code}</td>
+            <td class="py-1 font-semibold">${hamper.box.name} (Container)</td>
+            <td class="py-1 text-center">1</td>
+            <td class="py-1 text-right">₹${hamper.box.price.toFixed(2)}</td>
+            <td class="py-1 text-right">₹${hamper.box.price.toFixed(2)}</td>
+          </tr>
+        `;
+
+        for (const [code, qty] of Object.entries(hamper.cart)) {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (prod) {
+            const amount = prod.price * qty;
+            boxSubtotal += amount;
+            rowsHTML += `
+              <tr class="border-b">
+                <td class="py-1 font-mono text-stone-600">${prod.code}</td>
+                <td class="py-1">${prod.name}</td>
+                <td class="py-1 text-center">${qty}</td>
+                <td class="py-1 text-right">₹${prod.price.toFixed(2)}</td>
+                <td class="py-1 text-right">₹${amount.toFixed(2)}</td>
+              </tr>
+            `;
+          }
+        }
+
+        grandTotal += boxSubtotal;
+
+        return `
+          <div class="border rounded-lg p-3">
+            <div class="flex justify-between font-bold text-xs border-b pb-1 mb-1">
+              <span>GIFT BOX #${idx+1}: ${hamper.box.name}</span>
+              <span>Subtotal: ₹${boxSubtotal.toFixed(2)}</span>
+            </div>
+            <table class="w-full text-xs text-left border-collapse">
+              <thead>
+                <tr class="border-b text-stone-400">
+                  <th class="py-1">Code</th>
+                  <th class="py-1">Item Description</th>
+                  <th class="py-1 text-center">Qty</th>
+                  <th class="py-1 text-right">Rate</th>
+                  <th class="py-1 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHTML}</tbody>
+            </table>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('bill-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
       window.print();
     }
 
-    // Auto-sync on page open
+    // Auto-sync on page load
     syncGoogleSheetLive();
   </script>
 </body>
