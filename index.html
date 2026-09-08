@@ -144,12 +144,16 @@
         <span id="box-summary" class="text-xs text-stone-500 block">No box chosen</span>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
         <button id="btn-save-box" onclick="saveCurrentBoxToCart()" disabled class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm">
           + Add Box to Cart
         </button>
-        <button onclick="toggleCartModal()" class="px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition shadow-sm flex items-center gap-1.5">
-          <span>🛍️</span> View Order Cart (<span id="cart-footer-count">0</span>)
+        <button onclick="shareOnWhatsApp()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm flex items-center gap-1.5">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          WhatsApp
+        </button>
+        <button onclick="toggleCartModal()" class="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition shadow-sm flex items-center gap-1.5">
+          <span>🛍️</span> View Cart (<span id="cart-footer-count">0</span>)
         </button>
       </div>
     </div>
@@ -175,12 +179,16 @@
           <span class="text-xs text-stone-500 block">Grand Total (<span id="cart-total-boxes">0</span> Boxes):</span>
           <span id="cart-grand-total" class="text-2xl font-black text-stone-900">₹0.00</span>
         </div>
-        <div class="flex items-center gap-2">
-          <button id="btn-excel" onclick="downloadManualBillExcel()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
-            <span>📊</span> Export Excel Bill
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="shareOnWhatsApp()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            WhatsApp
           </button>
-          <button id="btn-pdf" onclick="openPrintBill()" class="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
-            <span>🧾</span> Print / PDF Bill
+          <button id="btn-excel" onclick="downloadManualBillExcel()" class="px-3.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+            <span>📊</span> Excel Bill
+          </button>
+          <button id="btn-pdf" onclick="openPrintBill()" class="px-3.5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+            <span>🧾</span> Print / PDF
           </button>
         </div>
       </div>
@@ -222,9 +230,7 @@
       <div><strong>Location:</strong> <span id="bill-cust-location"></span></div>
     </div>
 
-    <div id="bill-boxes-breakdown" class="space-y-4 mb-4">
-      <!-- Box by Box Breakdown Injected via JS -->
-    </div>
+    <div id="bill-boxes-breakdown" class="space-y-4 mb-4"></div>
 
     <div class="border-t-2 border-stone-800 pt-3 flex justify-between items-center">
       <span class="text-sm font-bold uppercase">Grand Total (Incl. GST):</span>
@@ -244,7 +250,7 @@
 
     // Builder State
     let selectedBox = null;
-    let currentBoxCart = {}; // { productCode: qty }
+    let currentBoxCart = {};
     let activeCategory = "All";
     let searchQuery = "";
     let confirmCallback = null;
@@ -275,7 +281,6 @@
       document.body.appendChild(script);
     }
 
-    // Smart Column Matcher
     function normalizeRow(rowObj, keys) {
       const normalized = {};
       for (const [k, v] of Object.entries(rowObj)) {
@@ -337,9 +342,7 @@
         }).filter(b => b.name && b.name !== '');
 
         loadSheetJSONP("Products", "onProductsLoaded");
-      } catch (e) {
-        console.error("Boxes error:", e);
-      }
+      } catch (e) { console.error(e); }
     };
 
     window.onProductsLoaded = function(json) {
@@ -360,12 +363,9 @@
         }).filter(p => p.name && p.name !== '' && !p.name.toLowerCase().includes('product name'));
 
         loadSheetJSONP("Delivery", "onDeliveryLoaded");
-      } catch (e) {
-        console.error("Products error:", e);
-      }
+      } catch (e) { console.error(e); }
     };
 
-    // Robust Delivery Loader: Reads Column A & Column B independently
     window.onDeliveryLoaded = function(json) {
       try {
         if (json && json.table && json.table.rows) {
@@ -374,26 +374,18 @@
 
           json.table.rows.forEach(r => {
             if (r.c) {
-              // Column A: Mode of Delivery
               const modeVal = r.c[0] && r.c[0].v !== null ? String(r.c[0].v).trim() : '';
-              if (modeVal && !modeVal.toLowerCase().includes('mode')) {
-                modes.push(modeVal);
-              }
+              if (modeVal && !modeVal.toLowerCase().includes('mode')) modes.push(modeVal);
 
-              // Column B: Delivery Location
               const locVal = r.c[1] && r.c[1].v !== null ? String(r.c[1].v).trim() : '';
-              if (locVal && !locVal.toLowerCase().includes('location')) {
-                locations.push(locVal);
-              }
+              if (locVal && !locVal.toLowerCase().includes('location')) locations.push(locVal);
             }
           });
 
           if (modes.length > 0) populateSelect("delivery-mode", modes);
           if (locations.length > 0) populateSelect("delivery-location", locations);
         }
-      } catch (e) {
-        console.warn("Delivery sheet issue:", e);
-      }
+      } catch (e) { console.warn(e); }
 
       const syncStatus = document.getElementById('sync-status');
       const syncText = document.getElementById('sync-text');
@@ -410,13 +402,12 @@
       el.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
     }
 
-    // --- Box Selection (Preserves Items) ---
     function selectBox(idx) {
       const newBox = boxes[idx];
       const currentItemsCount = calculateCurrentBoxItemsCount();
 
       if (newBox.max < currentItemsCount) {
-        alert(`Notice: Selected ${newBox.name} holds max ${newBox.max} items. You currently have ${currentItemsCount} items. Please adjust before proceeding.`);
+        alert(`Notice: Selected ${newBox.name} holds max ${newBox.max} items. You currently have ${currentItemsCount} items.`);
       }
 
       selectedBox = newBox;
@@ -451,7 +442,6 @@
       return total;
     }
 
-    // --- Cart & Multi-Box Operations ---
     function saveCurrentBoxToCart() {
       const itemsCount = calculateCurrentBoxItemsCount();
       if (!selectedBox || itemsCount === 0) return;
@@ -474,7 +464,6 @@
         });
       }
 
-      // Reset for next box
       currentBoxCart = {};
       selectedBox = null;
       document.getElementById('catalog-section').classList.add('opacity-40', 'pointer-events-none');
@@ -519,7 +508,6 @@
       });
     }
 
-    // Confirm Dialogs
     function showConfirmDialog(title, message, callback) {
       document.getElementById('confirm-title').innerText = title;
       document.getElementById('confirm-message').innerText = message;
@@ -568,7 +556,6 @@
       if (!modal.classList.contains('hidden')) renderCartModal();
     }
 
-    // --- Renders ---
     function renderBoxes() {
       const container = document.getElementById('boxes-container');
       container.innerHTML = boxes.map((box, idx) => {
@@ -742,11 +729,75 @@
       const location = document.getElementById('delivery-location').value;
 
       if (!name || !phone) {
-        alert("Please enter Customer Name and Contact Number at the top before exporting.");
+        alert("Please enter Customer Name and Contact Number at the top.");
         document.getElementById('cust-name').focus();
         return null;
       }
       return { name, phone, mode, location };
+    }
+
+    // --- WhatsApp Order Share Engine ---
+    function shareOnWhatsApp() {
+      const cust = getCustomerInfo();
+      if (!cust) return;
+
+      const allHampers = [...cartHampers];
+      if (selectedBox && calculateCurrentBoxItemsCount() > 0) {
+        allHampers.push({ box: selectedBox, cart: { ...currentBoxCart } });
+      }
+
+      if (allHampers.length === 0) {
+        alert("Please add at least one box to cart before sharing.");
+        return;
+      }
+
+      let grandTotal = 0;
+      const messageLines = [
+        `*ANAND SWEETS AND SAVOURIES*`,
+        `*Bespoke Gift Hamper Order Estimation*`,
+        `━━━━━━━━━━━━━━━━━━━━━`,
+        `👤 *Customer:* ${cust.name}`,
+        `📞 *Contact:* ${cust.phone}`,
+        `🚚 *Delivery Mode:* ${cust.mode || 'N/A'}`,
+        `📍 *Location:* ${cust.location || 'N/A'}`,
+        `📅 *Date:* ${new Date().toLocaleDateString('en-GB')}`,
+        `━━━━━━━━━━━━━━━━━━━━━`
+      ];
+
+      allHampers.forEach((hamper, idx) => {
+        let boxTotal = hamper.box.price;
+        messageLines.push(`\n🎁 *BOX #${idx+1}: ${hamper.box.name}* \`[#${hamper.box.code}]\``);
+        messageLines.push(`  • Container Box: ₹${hamper.box.price.toFixed(2)}`);
+
+        for (const [code, qty] of Object.entries(hamper.cart)) {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (prod) {
+            const lineAmt = prod.price * qty;
+            boxTotal += lineAmt;
+            messageLines.push(`  • ${prod.name} \`[#${prod.code}]\` × ${qty} = ₹${lineAmt.toFixed(2)}`);
+          }
+        }
+        messageLines.push(`  👉 *Box Subtotal:* ₹${boxTotal.toFixed(2)}`);
+        grandTotal += boxTotal;
+      });
+
+      messageLines.push(`━━━━━━━━━━━━━━━━━━━━━`);
+      messageLines.push(`💰 *GRAND TOTAL (Incl. GST): ₹${grandTotal.toFixed(2)}*`);
+      messageLines.push(`━━━━━━━━━━━━━━━━━━━━━`);
+      messageLines.push(`_Thank you for choosing Anand Sweets & Savouries!_`);
+
+      const fullMessage = encodeURIComponent(messageLines.join('\n'));
+
+      // Clean phone number (strip spaces, symbols)
+      let cleanPhone = cust.phone.replace(/[^0-9]/g, '');
+      if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+      // Opens WhatsApp Web or native WhatsApp app directly
+      const waUrl = cleanPhone.length >= 10 
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${fullMessage}` 
+        : `https://api.whatsapp.com/send?text=${fullMessage}`;
+
+      window.open(waUrl, '_blank');
     }
 
     // --- Excel Master Multi-Box Exporter ---
