@@ -137,7 +137,7 @@
     <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
-          <span class="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Active Box Total:</span>
+          <span class="text-[10px] text-stone-400 uppercase font-bold tracking-wider">Active Box Total (Incl. GST):</span>
           <span id="current-box-total" class="text-base font-bold text-stone-900">₹0.00</span>
         </div>
         <span id="box-summary" class="text-xs text-stone-500 block">No box chosen</span>
@@ -171,22 +171,36 @@
 
       <div id="cart-items-container" class="overflow-y-auto space-y-4 pr-1 flex-1"></div>
 
-      <div class="border-t pt-4 mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <span class="text-xs text-stone-500 block">Grand Total (<span id="cart-total-boxes">0</span> Boxes):</span>
-          <span id="cart-grand-total" class="text-2xl font-black text-stone-900">₹0.00</span>
+      <!-- Financial Tax Breakdown Box -->
+      <div class="border-t pt-3 mt-3 bg-stone-50 p-3 rounded-xl">
+        <div class="grid grid-cols-3 gap-2 text-center border-b pb-2 mb-2">
+          <div>
+            <span class="text-[10px] text-stone-500 block uppercase font-semibold">Total Pre-GST</span>
+            <span id="cart-sum-net" class="text-sm font-bold text-stone-800">₹0.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-500 block uppercase font-semibold">Total GST</span>
+            <span id="cart-sum-gst" class="text-sm font-bold text-amber-700">₹0.00</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-stone-500 block uppercase font-bold text-stone-700">Grand Total (Incl. GST)</span>
+            <span id="cart-grand-total" class="text-base font-black text-stone-900">₹0.00</span>
+          </div>
         </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <button onclick="shareWhatsAppPDF()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-            WhatsApp PDF
-          </button>
-          <button id="btn-excel" onclick="downloadManualBillExcel()" class="px-3.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
-            <span>📊</span> Excel Bill
-          </button>
-          <button id="btn-pdf" onclick="openPrintBill()" class="px-3.5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
-            <span>🧾</span> Print / PDF
-          </button>
+        <div class="flex items-center justify-between gap-2 flex-wrap pt-1">
+          <span class="text-xs text-stone-500">Total Boxes: <strong id="cart-total-boxes">0</strong></span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="shareWhatsAppPDF()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              WhatsApp PDF
+            </button>
+            <button id="btn-excel" onclick="downloadManualBillExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+              <span>📊</span> Excel Bill
+            </button>
+            <button id="btn-pdf" onclick="openPrintBill()" class="px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-black text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+              <span>🧾</span> Print / PDF
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -229,9 +243,21 @@
 
     <div id="bill-boxes-breakdown" class="space-y-4 mb-4"></div>
 
-    <div class="border-t-2 border-stone-800 pt-3 flex justify-between items-center">
-      <span class="text-sm font-bold uppercase">Grand Total (Incl. GST):</span>
-      <span id="bill-grand-total" class="text-xl font-black">₹0.00</span>
+    <div class="border-t-2 border-stone-800 pt-3 flex flex-col items-end space-y-1">
+      <div class="w-64 space-y-1 text-xs">
+        <div class="flex justify-between text-stone-600">
+          <span>Sum of Pre-GST Value:</span>
+          <span id="bill-sum-net" class="font-bold">₹0.00</span>
+        </div>
+        <div class="flex justify-between text-stone-600">
+          <span>Total GST Value:</span>
+          <span id="bill-sum-gst" class="font-bold">₹0.00</span>
+        </div>
+        <div class="flex justify-between border-t border-stone-800 pt-1 font-black text-sm text-stone-900">
+          <span>Grand Total (Incl. GST):</span>
+          <span id="bill-grand-total">₹0.00</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -330,16 +356,23 @@
           const rawPrice = normalizeRow(r, ['baseprice', 'price', 'totalprice', 'rate']) || r.col_2 || 0;
           const rawMax = normalizeRow(r, ['maxitem', 'maxitems', 'capacity', 'limit', 'max']) || r.col_3 || 5;
 
+          const basePrice = parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
+          // Packaging boxes standard GST 18% or 5% (net price is basePrice / 1.05 or basePrice / 1.18, let's read GST % if present else standard 5%)
+          const gstRate = parseFloat(normalizeRow(r, ['gst', 'gst%']) || 0.05);
+          const netPrice = parseFloat((basePrice / (1 + gstRate)).toFixed(2));
+
           return {
             code: String(code).trim(),
             name: String(name).trim(),
-            price: parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0,
+            netPrice: netPrice,
+            gstRate: gstRate,
+            price: basePrice, // Total price incl GST
             max: parseInt(String(rawMax).replace(/[^0-9]/g, ''), 10) || 5
           };
         }).filter(b => b.name && b.name !== '');
 
         loadSheetJSONP("Products", "onProductsLoaded");
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Boxes error:", e); }
     };
 
     window.onProductsLoaded = function(json) {
@@ -349,18 +382,30 @@
           const cat = normalizeRow(r, ['category', 'cat', 'group', 'type']) || r.col_0 || 'General';
           const code = normalizeRow(r, ['code', 'itemcode', 'productcode', 'sku']) || r.col_1 || `P-${idx+1}`;
           const name = normalizeRow(r, ['productname', 'name', 'itemname', 'description']) || r.col_2 || `Item ${idx+1}`;
-          const rawPrice = normalizeRow(r, ['totalprice', 'price', 'mrp', 'rate', 'netprice']) || r.col_5 || r.col_4 || r.col_3 || 0;
+          const rawNetPrice = normalizeRow(r, ['netprice', 'preprice', 'basicprice']);
+          const rawGST = normalizeRow(r, ['gst%', 'gst', 'tax%']) || 0.05;
+          const rawTotalPrice = normalizeRow(r, ['totalprice', 'price', 'mrp', 'rate', 'netprice']) || r.col_5 || r.col_4 || r.col_3 || 0;
+
+          const totalPrice = parseFloat(String(rawTotalPrice).replace(/[^0-9.]/g, '')) || 0;
+          const gstRate = parseFloat(String(rawGST).replace(/[^0-9.]/g, '')) || 0.05;
+          
+          let netPrice = parseFloat(String(rawNetPrice).replace(/[^0-9.]/g, ''));
+          if (isNaN(netPrice) || netPrice <= 0) {
+            netPrice = parseFloat((totalPrice / (1 + gstRate)).toFixed(2));
+          }
 
           return {
             category: String(cat).trim(),
             code: String(code).trim(),
             name: String(name).trim(),
-            price: parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0
+            gstRate: gstRate,
+            netPrice: netPrice,
+            price: totalPrice
           };
         }).filter(p => p.name && p.name !== '' && !p.name.toLowerCase().includes('product name'));
 
         loadSheetJSONP("Delivery", "onDeliveryLoaded");
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Products error:", e); }
     };
 
     window.onDeliveryLoaded = function(json) {
@@ -430,13 +475,40 @@
       return Object.values(currentBoxCart).reduce((sum, q) => sum + q, 0);
     }
 
-    function calculateCurrentBoxPrice() {
-      let total = selectedBox ? selectedBox.price : 0;
+    function calculateCurrentBoxFinancials() {
+      let netTotal = selectedBox ? selectedBox.netPrice : 0;
+      let totalInclGst = selectedBox ? selectedBox.price : 0;
+
       for (const [code, qty] of Object.entries(currentBoxCart)) {
         const prod = products.find(p => String(p.code) === String(code));
-        if (prod) total += prod.price * qty;
+        if (prod) {
+          netTotal += prod.netPrice * qty;
+          totalInclGst += prod.price * qty;
+        }
       }
-      return total;
+      const gstTotal = totalInclGst - netTotal;
+      return { netTotal, gstTotal, totalInclGst };
+    }
+
+    function calculateAllOrdersFinancials(allHampers) {
+      let sumNet = 0;
+      let sumTotal = 0;
+
+      allHampers.forEach(h => {
+        sumNet += h.box.netPrice;
+        sumTotal += h.box.price;
+
+        for (const [code, qty] of Object.entries(h.cart)) {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (prod) {
+            sumNet += prod.netPrice * qty;
+            sumTotal += prod.price * qty;
+          }
+        }
+      });
+
+      const sumGst = sumTotal - sumNet;
+      return { sumNet, sumGst, sumTotal };
     }
 
     function saveCurrentBoxToCart() {
@@ -565,6 +637,7 @@
             <h3 class="font-bold text-xs text-stone-900 mt-1 truncate">${box.name}</h3>
             <span class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">Max ${box.max} Items</span>
             <p class="text-xs text-stone-800 font-black mt-1">₹${box.price.toFixed(2)}</p>
+            <p class="text-[10px] text-stone-400">Pre-GST: ₹${box.netPrice.toFixed(2)}</p>
           </div>
         `;
       }).join('');
@@ -622,7 +695,10 @@
                 <span class="text-[10px] bg-stone-100 text-stone-700 font-mono px-1.5 py-0.5 rounded font-semibold">#${code}</span>
               </div>
               <h4 class="font-medium text-stone-900 text-xs leading-snug line-clamp-2">${prod.name}</h4>
-              <p class="text-xs font-black text-stone-900 mt-2">₹${prod.price.toFixed(2)}</p>
+              <div class="flex items-baseline justify-between mt-2">
+                <p class="text-xs font-black text-stone-900">₹${prod.price.toFixed(2)} <span class="text-[9px] text-stone-400 font-normal">incl. GST</span></p>
+                <p class="text-[10px] text-stone-500 font-mono">Rate: ₹${prod.netPrice.toFixed(2)}</p>
+              </div>
             </div>
             <div class="mt-3 pt-2 border-t flex justify-end items-center">
               <div class="flex items-center gap-2">
@@ -640,30 +716,37 @@
       const container = document.getElementById('cart-items-container');
       document.getElementById('cart-total-boxes').innerText = cartHampers.length;
 
-      let grandTotal = 0;
-
       if (cartHampers.length === 0) {
         container.innerHTML = `<div class="py-12 text-center text-xs text-stone-400">Your cart is empty. Build and add a gift box first.</div>`;
+        document.getElementById('cart-sum-net').innerText = "₹0.00";
+        document.getElementById('cart-sum-gst').innerText = "₹0.00";
         document.getElementById('cart-grand-total').innerText = "₹0.00";
         return;
       }
 
       container.innerHTML = cartHampers.map((hamper, idx) => {
+        let boxNet = hamper.box.netPrice;
         let boxTotal = hamper.box.price;
+
         const itemsList = Object.entries(hamper.cart).map(([code, qty]) => {
           const prod = products.find(p => String(p.code) === String(code));
           if (!prod) return '';
+          const lineNet = prod.netPrice * qty;
           const lineTotal = prod.price * qty;
+          boxNet += lineNet;
           boxTotal += lineTotal;
           return `
             <div class="flex justify-between text-xs py-1 border-b border-stone-100">
-              <span class="text-stone-700"><span class="font-mono text-stone-400">#${prod.code}</span> ${prod.name} &times; ${qty}</span>
+              <span class="text-stone-700">
+                <span class="font-mono text-stone-400">#${prod.code}</span> ${prod.name} &times; ${qty}
+                <span class="text-[10px] text-stone-400 ml-1">(Rate: ₹${prod.netPrice.toFixed(2)})</span>
+              </span>
               <span class="font-semibold text-stone-800">₹${lineTotal.toFixed(2)}</span>
             </div>
           `;
         }).join('');
 
-        grandTotal += boxTotal;
+        const boxGst = boxTotal - boxNet;
 
         return `
           <div class="border rounded-xl p-4 bg-stone-50/50">
@@ -680,16 +763,23 @@
             </div>
             <div class="space-y-0.5 mt-2 pl-2 border-l-2 border-amber-300">
               <div class="flex justify-between text-xs py-0.5 text-stone-500">
-                <span>Gift Box Container Base Price</span>
+                <span>Gift Box Container (Rate: ₹${hamper.box.netPrice.toFixed(2)})</span>
                 <span>₹${hamper.box.price.toFixed(2)}</span>
               </div>
               ${itemsList}
+              <div class="flex justify-between text-[11px] font-bold text-stone-600 pt-1 border-t mt-1">
+                <span>Box #${idx+1} Subtotal (Pre-GST: ₹${boxNet.toFixed(2)} | GST: ₹${boxGst.toFixed(2)})</span>
+                <span class="text-stone-900">₹${boxTotal.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         `;
       }).join('');
 
-      document.getElementById('cart-grand-total').innerText = `₹${grandTotal.toFixed(2)}`;
+      const fin = calculateAllOrdersFinancials(cartHampers);
+      document.getElementById('cart-sum-net').innerText = `₹${fin.sumNet.toFixed(2)}`;
+      document.getElementById('cart-sum-gst').innerText = `₹${fin.sumGst.toFixed(2)}`;
+      document.getElementById('cart-grand-total').innerText = `₹${fin.sumTotal.toFixed(2)}`;
     }
 
     function updateUI() {
@@ -698,10 +788,10 @@
 
       const usedSlots = calculateCurrentBoxItemsCount();
       const maxSlots = selectedBox ? selectedBox.max : 0;
-      const curBoxPrice = calculateCurrentBoxPrice();
+      const fin = calculateCurrentBoxFinancials();
 
       document.getElementById('capacity-indicator').innerText = `${usedSlots} / ${maxSlots} Items`;
-      document.getElementById('current-box-total').innerText = `₹${curBoxPrice.toFixed(2)}`;
+      document.getElementById('current-box-total').innerText = `₹${fin.totalInclGst.toFixed(2)}`;
 
       const boxSummary = document.getElementById('box-summary');
       const btnSaveBox = document.getElementById('btn-save-box');
@@ -713,7 +803,7 @@
       btnSaveBox.disabled = !selectedBox || usedSlots === 0;
 
       if (selectedBox) {
-        boxSummary.innerText = `[#${selectedBox.code}] ${selectedBox.name} • ${usedSlots}/${maxSlots} items selected`;
+        boxSummary.innerText = `[#${selectedBox.code}] ${selectedBox.name} • ${usedSlots}/${maxSlots} items (Rate: ₹${selectedBox.netPrice.toFixed(2)})`;
       } else {
         boxSummary.innerText = "No box chosen";
       }
@@ -733,16 +823,16 @@
       return { name, phone, mode, location };
     }
 
-    // --- Helper: Generate Master PDF Document (jsPDF) ---
+    // --- Helper: Generate Master PDF Document (jsPDF) with Pre-GST & GST Breakdown ---
     function generateMasterPDF(cust, allHampers) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
       // Brand Header Banner
-      doc.setFillColor(28, 25, 23); // #1c1917
+      doc.setFillColor(28, 25, 23);
       doc.rect(0, 0, 210, 32, 'F');
 
-      doc.setTextColor(245, 158, 11); // Amber
+      doc.setTextColor(245, 158, 11);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
       doc.text("ANAND SWEETS AND SAVOURIES", 14, 15);
@@ -776,11 +866,15 @@
       doc.text(cust.mode || "-", 135, 44);
       doc.text(cust.location || "-", 135, 52);
 
-      // Table Data Construction
+      // Table Data Construction with Pre-GST Rate & Amount (With GST)
       const tableRows = [];
-      let grandTotal = 0;
+      let sumNetValue = 0;
+      let sumGrandTotal = 0;
 
       allHampers.forEach((hamper, idx) => {
+        let boxNet = hamper.box.netPrice;
+        let boxTotal = hamper.box.price;
+
         tableRows.push([
           { content: `BOX #${idx + 1}: ${hamper.box.name}`, colSpan: 5, styles: { fillColor: [245, 235, 215], fontStyle: 'bold', textColor: [120, 53, 15] } }
         ]);
@@ -789,61 +883,85 @@
           hamper.box.code,
           `${hamper.box.name} (Container Box)`,
           "1",
-          `Rs. ${hamper.box.price.toFixed(2)}`,
+          `Rs. ${hamper.box.netPrice.toFixed(2)}`,
           `Rs. ${hamper.box.price.toFixed(2)}`
         ]);
-        grandTotal += hamper.box.price;
 
         for (const [code, qty] of Object.entries(hamper.cart)) {
           const prod = products.find(p => String(p.code) === String(code));
           if (prod) {
-            const amt = prod.price * qty;
-            grandTotal += amt;
+            const lineNet = prod.netPrice * qty;
+            const lineTotal = prod.price * qty;
+            boxNet += lineNet;
+            boxTotal += lineTotal;
             tableRows.push([
               prod.code,
               prod.name,
               String(qty),
-              `Rs. ${prod.price.toFixed(2)}`,
-              `Rs. ${amt.toFixed(2)}`
+              `Rs. ${prod.netPrice.toFixed(2)}`,
+              `Rs. ${lineTotal.toFixed(2)}`
             ]);
           }
         }
+
+        // Subtotal row for this box
+        tableRows.push([
+          { content: `Subtotal Box #${idx + 1} (Pre-GST: Rs. ${boxNet.toFixed(2)} | GST: Rs. ${(boxTotal - boxNet).toFixed(2)})`, colSpan: 4, styles: { fontStyle: 'bold', halign: 'right', fillColor: [250, 250, 250] } },
+          { content: `Rs. ${boxTotal.toFixed(2)}`, styles: { fontStyle: 'bold', halign: 'right', fillColor: [250, 250, 250] } }
+        ]);
+
+        sumNetValue += boxNet;
+        sumGrandTotal += boxTotal;
       });
+
+      const sumGstValue = sumGrandTotal - sumNetValue;
 
       doc.autoTable({
         startY: 64,
-        head: [['Item Code', 'Description / Sweets & Savouries', 'Qty', 'Rate (Rs)', 'Amount (Rs)']],
+        head: [['Item Code', 'Description', 'Qty', 'Rate (Pre-GST)', 'Amount (With GST)']],
         body: tableRows,
         theme: 'grid',
-        headStyles: { fillColor: [28, 25, 23], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
-        bodyStyles: { fontSize: 8.5, textColor: [40, 40, 40] },
+        headStyles: { fillColor: [28, 25, 23], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 },
+        bodyStyles: { fontSize: 8, textColor: [40, 40, 40] },
         columnStyles: {
           0: { cellWidth: 26, fontStyle: 'bold' },
           1: { cellWidth: 'auto' },
-          2: { cellWidth: 15, halign: 'center' },
-          3: { cellWidth: 28, halign: 'right' },
-          4: { cellWidth: 30, halign: 'right' }
+          2: { cellWidth: 14, halign: 'center' },
+          3: { cellWidth: 30, halign: 'right' },
+          4: { cellWidth: 32, halign: 'right' }
         },
         margin: { left: 14, right: 14 }
       });
 
-      // Total Section
-      const finalY = doc.lastAutoTable.finalY + 8;
+      // Total Breakup Box
+      const finalY = doc.lastAutoTable.finalY + 6;
+      doc.setFillColor(250, 248, 245);
+      doc.setDrawColor(220, 215, 205);
+      doc.roundedRect(110, finalY, 86, 28, 1.5, 1.5, 'FD');
+
+      doc.setFontSize(8.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(70, 70, 70);
+      doc.text("Sum of Pre-GST Value:", 114, finalY + 6);
+      doc.text(`Rs. ${sumNetValue.toFixed(2)}`, 192, finalY + 6, { align: 'right' });
+
+      doc.text("Total GST Value:", 114, finalY + 13);
+      doc.text(`Rs. ${sumGstValue.toFixed(2)}`, 192, finalY + 13, { align: 'right' });
+
       doc.setFillColor(28, 25, 23);
-      doc.roundedRect(120, finalY, 76, 12, 1, 1, 'F');
+      doc.rect(110, finalY + 18, 86, 10, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.text("GRAND TOTAL (Incl. GST):", 123, finalY + 8);
-      doc.text(`Rs. ${grandTotal.toFixed(2)}`, 193, finalY + 8, { align: 'right' });
+      doc.text("GRAND TOTAL (Incl. GST):", 114, finalY + 24.5);
+      doc.text(`Rs. ${sumGrandTotal.toFixed(2)}`, 192, finalY + 24.5, { align: 'right' });
 
       // Footer
       doc.setTextColor(140, 140, 140);
-      doc.setFontSize(8);
+      doc.setFontSize(7.5);
       doc.setFont("helvetica", "normal");
-      doc.text("Generated by Anand Sweets Studio for Billing / Dispatch Verification.", 14, finalY + 20);
+      doc.text("Generated by Anand Sweets Studio for Billing / Dispatch Verification.", 14, finalY + 34);
 
-      return { doc, grandTotal };
+      return { doc, sumNetValue, sumGstValue, sumGrandTotal };
     }
 
     // --- Direct WhatsApp PDF File Share Engine ---
@@ -864,36 +982,45 @@
       const safeName = cust.name.replace(/[^a-zA-Z0-9]/g, '_');
       const filename = `Anand_Hamper_Estimate_${safeName}.pdf`;
 
-      // 1. Build the PDF Document Blob
-      const { doc, grandTotal } = generateMasterPDF(cust, allHampers);
+      const { doc, sumNetValue, sumGstValue, sumGrandTotal } = generateMasterPDF(cust, allHampers);
       const pdfBlob = doc.output('blob');
       const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
-      // 2. If mobile device supports Web Share API with files (Android / iOS)
+      const captionText = `Dear ${cust.name}, please find attached your bespoke Anand Sweets gift hamper estimate.\n\n` +
+        `• Pre-GST Value: Rs. ${sumNetValue.toFixed(2)}\n` +
+        `• GST Amount: Rs. ${sumGstValue.toFixed(2)}\n` +
+        `• Grand Total: Rs. ${sumGrandTotal.toFixed(2)}\n\n` +
+        `Thank you for choosing Anand Sweets & Savouries!`;
+
       if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         try {
           await navigator.share({
             files: [pdfFile],
             title: 'Anand Sweets Hamper Estimate',
-            text: `Dear ${cust.name}, please find attached your bespoke Anand Sweets gift hamper estimate (Grand Total: Rs. ${grandTotal.toFixed(2)}).`
+            text: captionText
           });
           return;
         } catch (err) {
           if (err.name !== 'AbortError') {
-            console.warn("Native share cancelled or failed, falling back to direct download + chat link", err);
+            console.warn("Native share fallback to download", err);
           } else {
             return;
           }
         }
       }
 
-      // 3. Fallback for Desktop: Auto-download the PDF & Open WhatsApp Web Chat
+      // Desktop Fallback
       doc.save(filename);
 
       let cleanPhone = cust.phone.replace(/[^0-9]/g, '');
       if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-      const msg = encodeURIComponent(`Hello ${cust.name},\nYour Anand Sweets custom gift hamper estimation bill (Rs. ${grandTotal.toFixed(2)}) has been generated and downloaded as PDF. Attaching the PDF copy here.`);
+      const msg = encodeURIComponent(`Hello ${cust.name},\nYour Anand Sweets custom gift hamper estimation bill has been downloaded as PDF.\n\n` +
+        `• Pre-GST Value: Rs. ${sumNetValue.toFixed(2)}\n` +
+        `• GST Amount: Rs. ${sumGstValue.toFixed(2)}\n` +
+        `• Grand Total: Rs. ${sumGrandTotal.toFixed(2)}\n\n` +
+        `Attaching the official PDF file here.`);
+
       const waUrl = cleanPhone.length >= 10 
         ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}` 
         : `https://api.whatsapp.com/send?text=${msg}`;
@@ -902,7 +1029,7 @@
       window.open(waUrl, '_blank');
     }
 
-    // --- Excel Master Multi-Box Exporter ---
+    // --- Excel Master Multi-Box Exporter with Pre-GST Rate & Breakdown ---
     function downloadManualBillExcel() {
       const cust = getCustomerInfo();
       if (!cust) return;
@@ -918,35 +1045,51 @@
       }
 
       const billRows = [
-        ["ANAND SWEETS AND SAVOURIES - ESTIMATION BILL", ""],
-        ["Customer Name:", cust.name],
-        ["Contact No:", cust.phone],
-        ["Delivery Mode:", cust.mode],
-        ["Location / Branch:", cust.location],
-        ["Date:", new Date().toLocaleDateString('en-GB')],
+        ["ANAND SWEETS AND SAVOURIES - ESTIMATION BILL", "", "", "", ""],
+        ["Customer Name:", cust.name, "", "", ""],
+        ["Contact No:", cust.phone, "", "", ""],
+        ["Delivery Mode:", cust.mode, "", "", ""],
+        ["Location / Branch:", cust.location, "", "", ""],
+        ["Date:", new Date().toLocaleDateString('en-GB'), "", "", ""],
         [],
-        ["Box #", "Item Code", "Description / Product", "Qty", "Rate (₹)", "Amount (₹)"]
+        ["Box #", "Item Code", "Description / Product", "Qty", "Rate (Pre-GST ₹)", "Amount (With GST ₹)"]
       ];
 
-      let grandTotal = 0;
+      let sumNetValue = 0;
+      let sumGrandTotal = 0;
 
       allHampers.forEach((hamper, idx) => {
         const boxNum = `Box ${idx + 1}`;
-        billRows.push([boxNum, hamper.box.code, `${hamper.box.name} (Container)`, 1, hamper.box.price.toFixed(2), hamper.box.price.toFixed(2)]);
-        grandTotal += hamper.box.price;
+        let boxNet = hamper.box.netPrice;
+        let boxTotal = hamper.box.price;
+
+        billRows.push([boxNum, hamper.box.code, `${hamper.box.name} (Container)`, 1, hamper.box.netPrice.toFixed(2), hamper.box.price.toFixed(2)]);
 
         for (const [code, qty] of Object.entries(hamper.cart)) {
           const prod = products.find(p => String(p.code) === String(code));
           if (prod) {
-            const amount = prod.price * qty;
-            grandTotal += amount;
-            billRows.push([boxNum, prod.code, prod.name, qty, prod.price.toFixed(2), amount.toFixed(2)]);
+            const lineNet = prod.netPrice * qty;
+            const lineTotal = prod.price * qty;
+            boxNet += lineNet;
+            boxTotal += lineTotal;
+            billRows.push([boxNum, prod.code, prod.name, qty, prod.netPrice.toFixed(2), lineTotal.toFixed(2)]);
           }
         }
+
+        // Subtotal row for Box
+        billRows.push([boxNum, "", `SUBTOTAL BOX #${idx + 1}`, "", `Pre-GST: ${boxNet.toFixed(2)}`, `Total: ${boxTotal.toFixed(2)}`]);
+        billRows.push([]); // blank separator
+
+        sumNetValue += boxNet;
+        sumGrandTotal += boxTotal;
       });
 
-      billRows.push([]);
-      billRows.push(["", "", "", "", "Grand Total:", grandTotal.toFixed(2)]);
+      const sumGstValue = sumGrandTotal - sumNetValue;
+
+      // Final Master Financial Breakdown
+      billRows.push(["", "", "", "", "Sum of Pre-GST Value:", sumNetValue.toFixed(2)]);
+      billRows.push(["", "", "", "", "Total GST Value:", sumGstValue.toFixed(2)]);
+      billRows.push(["", "", "", "", "GRAND TOTAL (Incl. GST):", sumGrandTotal.toFixed(2)]);
 
       const ws = XLSX.utils.aoa_to_sheet(billRows);
       const wb = XLSX.utils.book_new();
@@ -956,7 +1099,7 @@
       XLSX.writeFile(wb, `Anand_Bill_${safeName}_${Date.now()}.xlsx`);
     }
 
-    // --- PDF / Thermal Print View ---
+    // --- PDF / Thermal Print Master Multi-Box View ---
     function openPrintBill() {
       const cust = getCustomerInfo();
       if (!cust) return;
@@ -971,9 +1114,84 @@
         return;
       }
 
-      const { doc } = generateMasterPDF(cust, allHampers);
-      const safeName = cust.name.replace(/[^a-zA-Z0-9]/g, '_');
-      doc.save(`Anand_Estimate_${safeName}.pdf`);
+      document.getElementById('bill-cust-name').innerText = cust.name;
+      document.getElementById('bill-cust-phone').innerText = cust.phone;
+      document.getElementById('bill-cust-mode').innerText = cust.mode;
+      document.getElementById('bill-cust-location').innerText = cust.location;
+      document.getElementById('bill-date').innerText = new Date().toLocaleDateString('en-GB');
+      document.getElementById('bill-ref').innerText = "AS-" + Math.floor(100000 + Math.random() * 900000);
+
+      const container = document.getElementById('bill-boxes-breakdown');
+      let sumNetValue = 0;
+      let sumGrandTotal = 0;
+
+      container.innerHTML = allHampers.map((hamper, idx) => {
+        let boxNet = hamper.box.netPrice;
+        let boxTotal = hamper.box.price;
+
+        let rowsHTML = `
+          <tr class="border-b">
+            <td class="py-1 font-mono text-stone-700 font-bold">${hamper.box.code}</td>
+            <td class="py-1 font-semibold">${hamper.box.name} (Container)</td>
+            <td class="py-1 text-center">1</td>
+            <td class="py-1 text-right font-mono">₹${hamper.box.netPrice.toFixed(2)}</td>
+            <td class="py-1 text-right font-mono">₹${hamper.box.price.toFixed(2)}</td>
+          </tr>
+        `;
+
+        for (const [code, qty] of Object.entries(hamper.cart)) {
+          const prod = products.find(p => String(p.code) === String(code));
+          if (prod) {
+            const lineNet = prod.netPrice * qty;
+            const lineTotal = prod.price * qty;
+            boxNet += lineNet;
+            boxTotal += lineTotal;
+            rowsHTML += `
+              <tr class="border-b">
+                <td class="py-1 font-mono text-stone-600">${prod.code}</td>
+                <td class="py-1">${prod.name}</td>
+                <td class="py-1 text-center">${qty}</td>
+                <td class="py-1 text-right font-mono">₹${prod.netPrice.toFixed(2)}</td>
+                <td class="py-1 text-right font-mono">₹${lineTotal.toFixed(2)}</td>
+              </tr>
+            `;
+          }
+        }
+
+        sumNetValue += boxNet;
+        sumGrandTotal += boxTotal;
+
+        return `
+          <div class="border rounded-lg p-3">
+            <div class="flex justify-between font-bold text-xs border-b pb-1 mb-1">
+              <span>GIFT BOX #${idx+1}: ${hamper.box.name}</span>
+              <span>Subtotal: ₹${boxTotal.toFixed(2)}</span>
+            </div>
+            <table class="w-full text-xs text-left border-collapse mb-1">
+              <thead>
+                <tr class="border-b text-stone-400">
+                  <th class="py-1">Code</th>
+                  <th class="py-1">Item Description</th>
+                  <th class="py-1 text-center">Qty</th>
+                  <th class="py-1 text-right">Rate (Pre-GST)</th>
+                  <th class="py-1 text-right">Amount (With GST)</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHTML}</tbody>
+            </table>
+            <div class="text-[10px] text-right font-medium text-stone-500">
+              Box Pre-GST: ₹${boxNet.toFixed(2)} | GST: ₹${(boxTotal - boxNet).toFixed(2)}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const sumGstValue = sumGrandTotal - sumNetValue;
+      document.getElementById('bill-sum-net').innerText = `₹${sumNetValue.toFixed(2)}`;
+      document.getElementById('bill-sum-gst').innerText = `₹${sumGstValue.toFixed(2)}`;
+      document.getElementById('bill-grand-total').innerText = `₹${sumGrandTotal.toFixed(2)}`;
+
+      window.print();
     }
 
     // Auto-sync on load
