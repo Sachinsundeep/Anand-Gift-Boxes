@@ -94,27 +94,33 @@
       }
     };
 
-    window.onDeliveryLoaded = function(json) {
+window.onDeliveryLoaded = function(json) {
       try {
         if (json && json.table && json.table.rows) {
-          const parsed = parseGvizTable(json);
-          const modes = new Set();
-          const locations = new Set();
+          const modes = [];
+          const locations = [];
 
-          parsed.forEach(r => {
-            for (const [k, val] of Object.entries(r)) {
-              if (!val || typeof val !== 'string') continue;
-              const cleanK = k.toLowerCase();
-              if (cleanK.includes('mode') || cleanK.includes('delivery')) modes.add(val.trim());
-              else if (cleanK.includes('location') || cleanK.includes('store') || cleanK.includes('branch')) locations.add(val.trim());
+          json.table.rows.forEach(r => {
+            if (r.c) {
+              // Column A (Index 0): Mode of Delivery
+              const modeVal = r.c[0] && r.c[0].v !== null ? String(r.c[0].v).trim() : '';
+              if (modeVal && !modeVal.toLowerCase().includes('mode')) {
+                modes.push(modeVal);
+              }
+
+              // Column B (Index 1): Delivery Location
+              const locVal = r.c[1] && r.c[1].v !== null ? String(r.c[1].v).trim() : '';
+              if (locVal && !locVal.toLowerCase().includes('location')) {
+                locations.push(locVal);
+              }
             }
           });
 
-          if (modes.size > 0) populateSelect("delivery-mode", Array.from(modes));
-          if (locations.size > 0) populateSelect("delivery-location", Array.from(locations));
+          if (modes.length > 0) populateSelect("delivery-mode", modes);
+          if (locations.length > 0) populateSelect("delivery-location", locations);
         }
       } catch (e) {
-        console.warn("Using default delivery options.");
+        console.warn("Delivery sheet parser issue:", e);
       }
 
       const syncStatus = document.getElementById('sync-status');
